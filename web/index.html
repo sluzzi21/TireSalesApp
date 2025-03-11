@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A tire sales application built with Flutter.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Tire Sales App">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Tire Sales App</title>
+  <link rel="manifest" href="manifest.json">
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    const serviceWorkerVersion = "{{flutter_service_worker_version}}";
+  </script>
+  <!-- Initialize Flutter -->
+  <script src="flutter.js" defer></script>
+</head>
+<body>
+  <div id="loading">
+    <style>
+      body {
+        inset: 0;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        position: fixed;
+      }
+      #loading {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+        width: 100%;
+      }
+      #loading .indicator {
+        text-align: center;
+      }
+      #loading .spinner {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 16px;
+        border: 3px solid transparent;
+        border-radius: 50%;
+        border-top: 3px solid #4CAF50;
+        -webkit-animation: spin 1s linear infinite;
+        animation: spin 1s linear infinite;
+      }
+      @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+    <div class="indicator">
+      <div class="spinner"></div>
+      <div>Loading Tire Sales App...</div>
+      <div id="loadingStatus" style="color: #666; margin-top: 8px; font-size: 14px;">Initializing...</div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', async function() {
+      var loading = document.querySelector('#loading');
+      var loadingStatus = document.querySelector('#loadingStatus');
+
+      try {
+        loadingStatus.textContent = 'Loading Flutter engine...';
+        // Initialize Flutter
+        await _flutter.loader.loadEntrypoint({
+          onEntrypointLoaded: async function(engineInitializer) {
+            loadingStatus.textContent = 'Initializing app...';
+            try {
+              // Initialize app
+              const appRunner = await engineInitializer.initializeEngine({
+                useColorEmoji: true,
+              });
+              loadingStatus.textContent = 'Starting app...';
+              // Run the app
+              await appRunner.runApp();
+              // Remove loading indicator
+              loading.remove();
+            } catch (e) {
+              loadingStatus.textContent = 'Error starting app: ' + e;
+              console.error('Error starting app:', e);
+            }
+          },
+          serviceWorker: {
+            serviceWorkerVersion: serviceWorkerVersion,
+          },
+        });
+      } catch (e) {
+        loadingStatus.textContent = 'Error loading Flutter: ' + e;
+        console.error('Error loading Flutter:', e);
+      }
+    });
+  </script>
+</body>
+</html>

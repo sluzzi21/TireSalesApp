@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Connection Test</title>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px;">
+    <h1>Firebase Connection Test</h1>
+    <div id="status" style="padding: 20px; border-radius: 5px; margin: 20px 0;">Testing connection...</div>
+    <pre id="data" style="background: #f5f5f5; padding: 20px; border-radius: 5px; display: none;"></pre>
+
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDPryMYd1BXgasI23YLbjeOpVjLx7_M5sg",
+            authDomain: "tiresalesapp.firebaseapp.com",
+            projectId: "tiresalesapp",
+            storageBucket: "tiresalesapp.appspot.com",
+            messagingSenderId: "477576111522",
+            appId: "1:477576111522:web:5d0b28a4b995798e46fefb"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Get Firestore instance
+        const db = firebase.firestore();
+        const statusDiv = document.getElementById('status');
+        const dataDiv = document.getElementById('data');
+
+        // Test connection by trying to access the tires collection
+        db.collection('tires').get()
+            .then((querySnapshot) => {
+                statusDiv.style.backgroundColor = '#e6ffe6';
+                statusDiv.innerHTML = `✅ Connection successful! Found ${querySnapshot.size} documents in 'tires' collection.`;
+                
+                if (querySnapshot.size > 0) {
+                    dataDiv.style.display = 'block';
+                    let data = [];
+                    querySnapshot.forEach((doc) => {
+                        data.push({ id: doc.id, ...doc.data() });
+                    });
+                    dataDiv.textContent = JSON.stringify(data, null, 2);
+                }
+            })
+            .catch((error) => {
+                statusDiv.style.backgroundColor = '#ffe6e6';
+                statusDiv.innerHTML = `❌ Error connecting to Firebase: ${error.message}`;
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>

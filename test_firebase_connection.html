@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Connection Test</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h2>Firebase Connection Test</h2>
+    <div id="status">Testing connection...</div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDPryMYd1BXgasI23YLbjeOpVjLx7_M5sg",
+            authDomain: "tiresalesapp.firebaseapp.com",
+            projectId: "tiresalesapp",
+            storageBucket: "tiresalesapp.appspot.com",
+            messagingSenderId: "477576111522",
+            appId: "1:477576111522:web:5d0b28a4b995798e46fefb"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Get Firestore instance
+        const db = firebase.firestore();
+
+        // Test connection by trying to access a collection
+        db.collection('tires').get()
+            .then((querySnapshot) => {
+                document.getElementById('status').innerHTML = 
+                    `Connection successful! Found ${querySnapshot.size} documents in 'tires' collection.`;
+                console.log('Connection successful!');
+                querySnapshot.forEach((doc) => {
+                    console.log('Document data:', doc.data());
+                });
+            })
+            .catch((error) => {
+                document.getElementById('status').innerHTML = 
+                    `Error connecting to Firebase: ${error.message}`;
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>
