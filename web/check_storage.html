@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Tire Storage</title>
+    <style>
+        pre { 
+            background: #f4f4f4; 
+            padding: 10px; 
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h2>Current Tires in Storage:</h2>
+    <pre id="output"></pre>
+    <script>
+        const tires = localStorage.getItem('tires');
+        if (tires) {
+            const tiresData = JSON.parse(tires);
+            document.getElementById('output').textContent = 
+                JSON.stringify(tiresData, null, 2);
+            document.write(`<p>Found ${tiresData.length} tires in storage.</p>`);
+        } else {
+            document.getElementById('output').textContent = 'No tires found in storage';
+        }
+    </script>
+</body>
+</html>

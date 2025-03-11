@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Sample Tires</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f4f4f4; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Storage Status:</h2>
+    <div id="output"></div>
+
+    <script>
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = isError ? 'error' : 'success';
+            div.textContent = message;
+            output.appendChild(div);
+            console.log(isError ? `ERROR: ${message}` : message);
+        }
+
+        function showJson(label, data) {
+            log(`${label}:`);
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            output.appendChild(pre);
+        }
+
+        try {
+            // Check if localStorage is available
+            if (!window.localStorage) {
+                throw new Error('localStorage is not available');
+            }
+            log('✓ localStorage is available');
+
+            // Get existing tires
+            const existingTiresJson = localStorage.getItem('tires');
+            log(`Current storage state: ${existingTiresJson ? 'Has data' : 'Empty'}`);
+            
+            if (existingTiresJson) {
+                const existingTires = JSON.parse(existingTiresJson);
+                log(`Found ${existingTires.length} existing tires`);
+                showJson('First existing tire', existingTires[0]);
+                log('No new tires added to avoid duplicates');
+            } else {
+                // Sample tires with the updated size format
+                const sampleTires = [
+                    {
+                        id: crypto.randomUUID(),
+                        brand: 'Michelin',
+                        model: 'Pilot Sport 4S',
+                        width: '245',
+                        ratio: '40',
+                        diameter: '18',
+                        price: 225.99,
+                        quantity: 8,
+                        description: 'High-performance summer tire with excellent grip and handling',
+                        category: 'Performance'
+                    },
+                    {
+                        id: crypto.randomUUID(),
+                        brand: 'Goodyear',
+                        model: 'Assurance WeatherReady',
+                        width: '215',
+                        ratio: '55',
+                        diameter: '17',
+                        price: 165.50,
+                        quantity: 12,
+                        description: 'All-season tire with superior wet weather performance',
+                        category: 'All Season'
+                    },
+                    {
+                        id: crypto.randomUUID(),
+                        brand: 'Bridgestone',
+                        model: 'Blizzak WS90',
+                        width: '225',
+                        ratio: '65',
+                        diameter: '17',
+                        price: 185.75,
+                        quantity: 6,
+                        description: 'Winter tire with exceptional snow and ice performance',
+                        category: 'Winter'
+                    }
+                ];
+
+                // Store tires in localStorage
+                const tiresJson = JSON.stringify(sampleTires);
+                localStorage.setItem('tires', tiresJson);
+                log(`✓ Added ${sampleTires.length} sample tires`);
+                showJson('Sample tire data', sampleTires[0]);
+
+                // Verify storage
+                const verifyJson = localStorage.getItem('tires');
+                if (verifyJson === tiresJson) {
+                    log('✓ Storage verification successful');
+                } else {
+                    throw new Error('Storage verification failed');
+                }
+            }
+
+            // Show all storage keys
+            const keys = Object.keys(localStorage);
+            log(`Current localStorage keys: ${keys.join(', ')}`);
+
+        } catch (e) {
+            log(`Error: ${e.message}`, true);
+            console.error(e);
+        }
+    </script>
+</body>
+</html>

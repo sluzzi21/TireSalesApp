@@ -1,3 +1,5 @@
+// This file is deprecated. Use storage_service.dart instead.
+
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';

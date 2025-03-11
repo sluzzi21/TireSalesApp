@@ -1,3 +1,5 @@
+// This file is deprecated. Use storage_service.dart instead.
+
 import 'dart:html' as html;
 
 class WebStorage {

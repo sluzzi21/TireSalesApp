@@ -33,7 +33,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) {
             debugPrint('Creating InventoryProvider');
-            return InventoryProvider(storageService);
+            final provider = InventoryProvider(storageService);
+            debugPrint('InventoryProvider created');
+            return provider;
           },
         ),
       ],

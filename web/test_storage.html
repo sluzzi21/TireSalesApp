@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Storage</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f4f4f4; padding: 10px; }
+        button { margin: 10px 0; padding: 8px 16px; }
+    </style>
+</head>
+<body>
+    <h2>Storage Test Results:</h2>
+    <div id="output"></div>
+    <button onclick="clearStorage()">Clear Storage</button>
+    <button onclick="refreshStatus()">Refresh Status</button>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = isError ? 'error' : 'success';
+            div.textContent = message;
+            output.appendChild(div);
+            console.log(isError ? `ERROR: ${message}` : message);
+        }
+
+        function showJson(label, data) {
+            log(`${label}:`);
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            output.appendChild(pre);
+        }
+
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+
+        function clearStorage() {
+            try {
+                localStorage.clear();
+                refreshStatus();
+                log('✓ Storage cleared successfully');
+            } catch (e) {
+                log(`Error clearing storage: ${e.message}`, true);
+            }
+        }
+
+        function refreshStatus() {
+            clearOutput();
+            checkStorage();
+        }
+
+        function checkStorage() {
+            try {
+                // Test if localStorage is available
+                if (window.localStorage) {
+                    log('✓ localStorage is available');
+                    
+                    // Test if we can write to localStorage
+                    localStorage.setItem('test', 'test');
+                    localStorage.removeItem('test');
+                    log('✓ Can write to localStorage');
+                    
+                    // Show all storage keys
+                    const keys = Object.keys(localStorage);
+                    log(`Current localStorage keys: ${keys.join(', ')}`);
+                    
+                    // Check tires data
+                    const tiresJson = localStorage.getItem('tires');
+                    if (tiresJson) {
+                        try {
+                            const tires = JSON.parse(tiresJson);
+                            log(`✓ Found ${tires.length} tires in storage`);
+                            
+                            // Show first tire as sample
+                            if (tires.length > 0) {
+                                showJson('Sample tire data', tires[0]);
+                            }
+
+                            // Validate tire data format
+                            const requiredFields = ['id', 'brand', 'model', 'width', 'ratio', 'diameter', 'price', 'quantity', 'category', 'description'];
+                            const missingFields = [];
+                            
+                            tires.forEach((tire, index) => {
+                                requiredFields.forEach(field => {
+                                    if (!(field in tire)) {
+                                        missingFields.push(`Tire ${index + 1} is missing field: ${field}`);
+                                    }
+                                });
+                            });
+
+                            if (missingFields.length > 0) {
+                                log('Data validation errors:', true);
+                                missingFields.forEach(error => log(error, true));
+                            } else {
+                                log('✓ All tires have the required fields');
+                            }
+                        } catch (e) {
+                            log(`Error parsing tires JSON: ${e.message}`, true);
+                            log('Raw tires data:', true);
+                            log(tiresJson, true);
+                        }
+                    } else {
+                        log('No tires found in storage', true);
+                    }
+                } else {
+                    log('localStorage is not available', true);
+                }
+            } catch (e) {
+                log(`Error: ${e.message}`, true);
+                console.error(e);
+            }
+        }
+
+        // Run tests on load
+        checkStorage();
+    </script>
+</body>
+</html>

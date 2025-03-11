@@ -5,8 +5,22 @@ import '../models/tire.dart';
 import '../widgets/tire_list.dart';
 import '../widgets/add_tire_dialog.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load tires when the screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InventoryProvider>().loadTires();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

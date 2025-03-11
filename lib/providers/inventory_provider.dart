@@ -13,6 +13,8 @@ class InventoryProvider extends ChangeNotifier {
 
   InventoryProvider(this._storageService) {
     debugPrint('InventoryProvider initialized with StorageService');
+    // Load tires immediately when provider is created
+    loadTires();
   }
 
   List<Tire> get tires => _filteredTires.isEmpty && _searchQuery.isEmpty ? _tires : _filteredTires;
@@ -28,6 +30,7 @@ class InventoryProvider extends ChangeNotifier {
     try {
       _tires = await _storageService.loadTires();
       debugPrint('Successfully loaded ${_tires.length} tires');
+      debugPrint('First tire: ${_tires.isNotEmpty ? _tires.first.toString() : "No tires"}');
       _updateFilteredTires();
     } catch (e) {
       _error = 'Failed to load tires: $e';
@@ -35,7 +38,7 @@ class InventoryProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
-      debugPrint('Finished loading tires. Loading: $_isLoading, Error: $_error');
+      debugPrint('Finished loading tires. Loading: $_isLoading, Error: $_error, Tires count: ${_tires.length}');
     }
   }
 
@@ -97,7 +100,7 @@ class InventoryProvider extends ChangeNotifier {
 
   void _updateFilteredTires() {
     if (_searchQuery.isEmpty) {
-      debugPrint('Search query empty, showing all tires');
+      debugPrint('Search query empty, showing all ${_tires.length} tires');
       _filteredTires = [];
     } else {
       _filteredTires = _tires.where((tire) {
