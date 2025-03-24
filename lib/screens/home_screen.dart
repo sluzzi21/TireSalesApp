@@ -38,20 +38,21 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          Padding(
+          Container(
             padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SearchBar(
-                    hintText: 'Search tires...',
-                    onChanged: (query) {
-                      context.read<InventoryProvider>().searchTires(query);
-                    },
-                    leading: const Icon(Icons.search),
-                  ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
-                const SizedBox(width: 16),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
                 ElevatedButton.icon(
                   onPressed: () {
                     showDialog(
@@ -130,7 +131,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                return TireList(tires: tires);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: TireList(tires: tires),
+                );
               },
             ),
           ),

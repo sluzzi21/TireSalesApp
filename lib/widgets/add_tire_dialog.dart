@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 import '../models/tire.dart';
 import '../providers/inventory_provider.dart';
 
@@ -12,15 +11,15 @@ class AddTireDialog extends StatefulWidget {
 }
 
 class _AddTireDialogState extends State<AddTireDialog> {
+  final _formKey = GlobalKey<FormState>();
   final _brandController = TextEditingController();
   final _modelController = TextEditingController();
   final _widthController = TextEditingController();
   final _ratioController = TextEditingController();
   final _diameterController = TextEditingController();
+  final _categoryController = TextEditingController();
   final _priceController = TextEditingController();
-  final _quantityController = TextEditingController();
   final _descriptionController = TextEditingController();
-  String _category = 'All Season';
 
   @override
   void dispose() {
@@ -29,106 +28,127 @@ class _AddTireDialogState extends State<AddTireDialog> {
     _widthController.dispose();
     _ratioController.dispose();
     _diameterController.dispose();
+    _categoryController.dispose();
     _priceController.dispose();
-    _quantityController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
-  void _handleSubmit() {
-    final newTire = Tire(
-      id: const Uuid().v4(),
-      brand: _brandController.text,
-      model: _modelController.text,
-      width: _widthController.text,
-      ratio: _ratioController.text,
-      diameter: _diameterController.text,
-      price: double.tryParse(_priceController.text) ?? 0.0,
-      quantity: int.tryParse(_quantityController.text) ?? 0,
-      description: _descriptionController.text,
-      category: _category,
-    );
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final tire = Tire(
+        brand: _brandController.text,
+        model: _modelController.text,
+        width: _widthController.text,
+        ratio: _ratioController.text,
+        diameter: _diameterController.text,
+        category: _categoryController.text,
+        price: double.parse(_priceController.text),
+        description: _descriptionController.text,
+      );
 
-    Provider.of<InventoryProvider>(context, listen: false).addTire(newTire);
-    Navigator.of(context).pop();
+      context.read<InventoryProvider>().addTire(tire);
+      Navigator.of(context).pop();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Add New Tire'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _brandController,
-              decoration: const InputDecoration(labelText: 'Brand'),
-            ),
-            TextField(
-              controller: _modelController,
-              decoration: const InputDecoration(labelText: 'Model'),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _widthController,
-                    decoration: const InputDecoration(labelText: 'Width'),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _ratioController,
-                    decoration: const InputDecoration(labelText: 'Ratio'),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _diameterController,
-                    decoration: const InputDecoration(labelText: 'Diameter'),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            TextField(
-              controller: _priceController,
-              decoration: const InputDecoration(labelText: 'Price'),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: _quantityController,
-              decoration: const InputDecoration(labelText: 'Quantity'),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
-              maxLines: 3,
-            ),
-            DropdownButtonFormField<String>(
-              value: _category,
-              decoration: const InputDecoration(labelText: 'Category'),
-              items: const [
-                DropdownMenuItem(value: 'All Season', child: Text('All Season')),
-                DropdownMenuItem(value: 'Summer', child: Text('Summer')),
-                DropdownMenuItem(value: 'Winter', child: Text('Winter')),
-                DropdownMenuItem(value: 'Performance', child: Text('Performance')),
-                DropdownMenuItem(value: 'All Terrain', child: Text('All Terrain')),
-                DropdownMenuItem(value: 'Off Road', child: Text('Off Road')),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _category = value);
-                }
-              },
-            ),
-          ],
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _brandController,
+                decoration: const InputDecoration(labelText: 'Brand'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a brand';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _modelController,
+                decoration: const InputDecoration(labelText: 'Model'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a model';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _widthController,
+                decoration: const InputDecoration(labelText: 'Width'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a width';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _ratioController,
+                decoration: const InputDecoration(labelText: 'Ratio'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a ratio';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _diameterController,
+                decoration: const InputDecoration(labelText: 'Diameter'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a diameter';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _categoryController,
+                decoration: const InputDecoration(labelText: 'Category'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a category';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _priceController,
+                decoration: const InputDecoration(labelText: 'Price'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a price';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Description'),
+                maxLines: 3,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a description';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -137,17 +157,7 @@ class _AddTireDialogState extends State<AddTireDialog> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: () {
-            if (_brandController.text.isNotEmpty &&
-                _modelController.text.isNotEmpty &&
-                _widthController.text.isNotEmpty &&
-                _ratioController.text.isNotEmpty &&
-                _diameterController.text.isNotEmpty &&
-                _priceController.text.isNotEmpty &&
-                _quantityController.text.isNotEmpty) {
-              _handleSubmit();
-            }
-          },
+          onPressed: _submitForm,
           child: const Text('Add'),
         ),
       ],

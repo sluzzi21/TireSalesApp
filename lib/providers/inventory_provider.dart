@@ -1,15 +1,23 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tire_sales_app/models/tire.dart';
 import 'package:tire_sales_app/services/storage_service.dart';
 
-class InventoryProvider extends ChangeNotifier {
+class InventoryProvider with ChangeNotifier {
   final StorageService _storageService;
   List<Tire> _tires = [];
   List<Tire> _filteredTires = [];
-  bool _isLoading = false;
   String? _error;
-  String _searchQuery = '';
+  bool _isLoading = false;
+  Map<String, String> _columnFilters = {
+    'brand': '',
+    'model': '',
+    'width': '',
+    'ratio': '',
+    'diameter': '',
+    'category': '',
+    'price': '',
+    'description': '',
+  };
 
   InventoryProvider(this._storageService) {
     debugPrint('InventoryProvider initialized with StorageService');
@@ -17,24 +25,78 @@ class InventoryProvider extends ChangeNotifier {
     loadTires();
   }
 
-  List<Tire> get tires => _filteredTires.isEmpty && _searchQuery.isEmpty ? _tires : _filteredTires;
-  bool get isLoading => _isLoading;
+  List<Tire> get tires => _filteredTires.isEmpty ? _tires : _filteredTires;
   String? get error => _error;
+  bool get isLoading => _isLoading;
+
+  void updateColumnFilter(String column, String value) {
+    _columnFilters[column] = value;
+    _applyFilters();
+    notifyListeners();
+  }
+
+  void _applyFilters() {
+    _filteredTires = _tires.where((tire) {
+      return _matchesFilters(tire);
+    }).toList();
+  }
+
+  bool _matchesFilters(Tire tire) {
+    // Helper function to check if a value matches a filter
+    bool matchesFilter(String value, String filter) {
+      return filter.isEmpty || 
+             value.toLowerCase().contains(filter.toLowerCase());
+    }
+
+    // Check each column filter
+    if (!matchesFilter(tire.brand, _columnFilters['brand']!)) return false;
+    if (!matchesFilter(tire.model, _columnFilters['model']!)) return false;
+    if (!matchesFilter(tire.width, _columnFilters['width']!)) return false;
+    if (!matchesFilter(tire.ratio, _columnFilters['ratio']!)) return false;
+    if (!matchesFilter(tire.diameter, _columnFilters['diameter']!)) return false;
+    if (!matchesFilter(tire.category, _columnFilters['category']!)) return false;
+    if (!matchesFilter(tire.price.toString(), _columnFilters['price']!)) return false;
+    if (!matchesFilter(tire.description, _columnFilters['description']!)) return false;
+
+    return true;
+  }
+
+  void searchTires(String query) {
+    if (query.isEmpty) {
+      _filteredTires = _tires;
+    } else {
+      _filteredTires = _tires.where((tire) {
+        final searchStr = query.toLowerCase();
+        return tire.brand.toLowerCase().contains(searchStr) ||
+               tire.model.toLowerCase().contains(searchStr) ||
+               tire.width.toLowerCase().contains(searchStr) ||
+               tire.ratio.toLowerCase().contains(searchStr) ||
+               tire.diameter.toLowerCase().contains(searchStr) ||
+               tire.category.toLowerCase().contains(searchStr) ||
+               tire.description.toLowerCase().contains(searchStr) ||
+               tire.price.toString().contains(searchStr);
+      }).toList();
+    }
+    notifyListeners();
+  }
 
   Future<void> loadTires() async {
     debugPrint('Loading tires from storage');
-    _isLoading = true;
     _error = null;
+    _isLoading = true;
     notifyListeners();
 
     try {
       _tires = await _storageService.loadTires();
       debugPrint('Successfully loaded ${_tires.length} tires');
       debugPrint('First tire: ${_tires.isNotEmpty ? _tires.first.toString() : "No tires"}');
-      _updateFilteredTires();
+      _filteredTires = _tires;
+      _error = null;
     } catch (e) {
-      _error = 'Failed to load tires: $e';
       debugPrint('Error loading tires: $e');
+      _error = 'Failed to load tires: $e';
+      _tires = [];
+      _filteredTires = [];
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -46,14 +108,11 @@ class InventoryProvider extends ChangeNotifier {
     debugPrint('Adding new tire: ${tire.id}');
     try {
       await _storageService.addTire(tire);
-      _tires.add(tire);
-      debugPrint('Successfully added tire: ${tire.id}');
-      _updateFilteredTires();
-      notifyListeners();
+      await loadTires();
     } catch (e) {
-      _error = 'Failed to add tire: $e';
       debugPrint('Error adding tire: $e');
-      throw Exception(_error);
+      _error = 'Failed to add tire: $e';
+      notifyListeners();
     }
   }
 
@@ -61,19 +120,11 @@ class InventoryProvider extends ChangeNotifier {
     debugPrint('Updating tire: ${tire.id}');
     try {
       await _storageService.updateTire(tire);
-      final index = _tires.indexWhere((t) => t.id == tire.id);
-      if (index != -1) {
-        _tires[index] = tire;
-        debugPrint('Successfully updated tire: ${tire.id}');
-        _updateFilteredTires();
-        notifyListeners();
-      } else {
-        throw Exception('Tire not found: ${tire.id}');
-      }
+      await loadTires();
     } catch (e) {
-      _error = 'Failed to update tire: $e';
       debugPrint('Error updating tire: $e');
-      throw Exception(_error);
+      _error = 'Failed to update tire: $e';
+      notifyListeners();
     }
   }
 
@@ -81,46 +132,11 @@ class InventoryProvider extends ChangeNotifier {
     debugPrint('Deleting tire: $id');
     try {
       await _storageService.deleteTire(id);
-      _tires.removeWhere((tire) => tire.id == id);
-      debugPrint('Successfully deleted tire: $id');
-      _updateFilteredTires();
-      notifyListeners();
+      await loadTires();
     } catch (e) {
-      _error = 'Failed to delete tire: $e';
       debugPrint('Error deleting tire: $e');
-      throw Exception(_error);
+      _error = 'Failed to delete tire: $e';
+      notifyListeners();
     }
-  }
-
-  void searchTires(String query) {
-    debugPrint('Searching tires with query: $query');
-    _searchQuery = query.toLowerCase();
-    _updateFilteredTires();
-  }
-
-  void _updateFilteredTires() {
-    if (_searchQuery.isEmpty) {
-      debugPrint('Search query empty, showing all ${_tires.length} tires');
-      _filteredTires = [];
-    } else {
-      _filteredTires = _tires.where((tire) {
-        final brand = tire.brand.toLowerCase();
-        final model = tire.model.toLowerCase();
-        final width = tire.width.toLowerCase();
-        final ratio = tire.ratio.toLowerCase();
-        final diameter = tire.diameter.toLowerCase();
-        final category = tire.category.toLowerCase();
-        final description = tire.description.toLowerCase();
-        return brand.contains(_searchQuery) ||
-               model.contains(_searchQuery) ||
-               width.contains(_searchQuery) ||
-               ratio.contains(_searchQuery) ||
-               diameter.contains(_searchQuery) ||
-               category.contains(_searchQuery) ||
-               description.contains(_searchQuery);
-      }).toList();
-      debugPrint('Found ${_filteredTires.length} tires matching query: $_searchQuery');
-    }
-    notifyListeners();
   }
 }
