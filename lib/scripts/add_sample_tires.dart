@@ -12,7 +12,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Michelin',
       model: 'Pilot Sport 4S',
-      size: '245/40R18',
+      width: '245',
+      ratio: '40',
+      diameter: '18',
       price: 225.99,
       quantity: 8,
       description: 'High-performance summer tire with excellent grip and handling',
@@ -22,7 +24,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Goodyear',
       model: 'Assurance WeatherReady',
-      size: '215/55R17',
+      width: '215',
+      ratio: '55',
+      diameter: '17',
       price: 165.50,
       quantity: 12,
       description: 'All-season tire with superior wet weather performance',
@@ -32,7 +36,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Bridgestone',
       model: 'Blizzak WS90',
-      size: '225/65R17',
+      width: '225',
+      ratio: '65',
+      diameter: '17',
       price: 185.75,
       quantity: 6,
       description: 'Winter tire with exceptional snow and ice performance',
@@ -42,7 +48,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Continental',
       model: 'ExtremeContact DWS06 Plus',
-      size: '255/35R19',
+      width: '255',
+      ratio: '35',
+      diameter: '19',
       price: 245.99,
       quantity: 4,
       description: 'Ultra-high performance all-season tire',
@@ -52,7 +60,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Pirelli',
       model: 'Scorpion Verde All Season Plus II',
-      size: '235/60R18',
+      width: '235',
+      ratio: '60',
+      diameter: '18',
       price: 195.50,
       quantity: 10,
       description: 'SUV/Crossover all-season tire with low rolling resistance',
@@ -62,7 +72,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Yokohama',
       model: 'GEOLANDAR A/T G015',
-      size: '265/70R17',
+      width: '265',
+      ratio: '70',
+      diameter: '17',
       price: 175.99,
       quantity: 8,
       description: 'All-terrain tire for light trucks and SUVs',
@@ -72,7 +84,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Toyo',
       model: 'Open Country M/T',
-      size: '285/75R16',
+      width: '285',
+      ratio: '75',
+      diameter: '16',
       price: 289.99,
       quantity: 4,
       description: 'Mud-terrain tire for extreme off-road performance',
@@ -82,7 +96,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Firestone',
       model: 'Destination LE3',
-      size: '225/65R17',
+      width: '225',
+      ratio: '65',
+      diameter: '17',
       price: 145.99,
       quantity: 16,
       description: 'Highway all-season tire for SUVs and light trucks',
@@ -92,7 +108,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'BFGoodrich',
       model: 'g-Force COMP-2 A/S PLUS',
-      size: '205/50R17',
+      width: '205',
+      ratio: '50',
+      diameter: '17',
       price: 155.99,
       quantity: 6,
       description: 'Ultra-high performance all-season tire',
@@ -102,7 +120,9 @@ Future<void> addSampleTires() async {
       id: const Uuid().v4(),
       brand: 'Hankook',
       model: 'Ventus V12 evo2',
-      size: '225/45R18',
+      width: '225',
+      ratio: '45',
+      diameter: '18',
       price: 168.75,
       quantity: 8,
       description: 'Summer performance tire with excellent dry grip',
@@ -110,18 +130,22 @@ Future<void> addSampleTires() async {
     ),
   ];
 
-  // Get existing tires
-  final existingTires = await storageService.getAllTires();
-  
-  // Only add tires if none exist
-  if (existingTires.isEmpty) {
-    debugPrint('No existing tires found, adding sample data...');
-    for (final tire in sampleTires) {
-      await storageService.addTire(tire);
-      debugPrint('Added tire: ${tire.brand} ${tire.model}');
+  try {
+    // Get existing tires
+    final existingTires = await storageService.loadTires();
+    
+    // Only add tires if none exist
+    if (existingTires.isEmpty) {
+      debugPrint('No existing tires found, adding sample data...');
+      for (final tire in sampleTires) {
+        await storageService.addTire(tire);
+        debugPrint('Added tire: ${tire.brand} ${tire.model}');
+      }
+      debugPrint('Sample tires added successfully');
+    } else {
+      debugPrint('Existing tires found, skipping sample data');
     }
-    debugPrint('Sample tires added successfully');
-  } else {
-    debugPrint('Existing tires found, skipping sample data');
+  } catch (e) {
+    debugPrint('Error adding sample tires: $e');
   }
 }

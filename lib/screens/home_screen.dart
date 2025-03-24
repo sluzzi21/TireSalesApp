@@ -96,6 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           child: const Text('Retry'),
                         ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/add-samples');
+                          },
+                          child: const Text('Add Sample Tires'),
+                        ),
                       ],
                     ),
                   );
@@ -103,10 +110,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 final tires = provider.tires;
                 if (tires.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No tires found. Add some tires to get started!',
-                      style: TextStyle(fontSize: 16),
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'No tires found. Add some tires to get started!',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/add-samples');
+                          },
+                          child: const Text('Add Sample Tires'),
+                        ),
+                      ],
                     ),
                   );
                 }

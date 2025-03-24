@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tire_sales_app/providers/inventory_provider.dart';
 import 'package:tire_sales_app/screens/home_screen.dart';
 import 'package:tire_sales_app/services/storage_service.dart';
+import 'package:tire_sales_app/scripts/add_sample_tires.dart';
 
 void main() {
   debugPrint('Starting app initialization...');
@@ -46,7 +47,41 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const HomeScreen(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const HomeScreen(),
+          '/add-samples': (context) => Scaffold(
+            appBar: AppBar(
+              title: const Text('Add Sample Tires'),
+            ),
+            body: Center(
+              child: FutureBuilder(
+                future: addSampleTires(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Sample tires added successfully!'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(context, '/');
+                        },
+                        child: const Text('Go to Home'),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        },
       ),
     );
   }
