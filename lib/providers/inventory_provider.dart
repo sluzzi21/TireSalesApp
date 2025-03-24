@@ -29,6 +29,38 @@ class InventoryProvider with ChangeNotifier {
   String? get error => _error;
   bool get isLoading => _isLoading;
 
+  // Get distinct values for picklists
+  List<String> get distinctBrands => _getDistinctValues((tire) => tire.brand)..sort();
+  List<String> get distinctModels => _getDistinctValues((tire) => tire.model).where((m) => m != null).map((m) => m!).toList()..sort();
+  List<String> get distinctWidths => _getDistinctValues((tire) => tire.width)..sort();
+  List<String> get distinctRatios => _getDistinctValues((tire) => tire.ratio)..sort();
+  List<String> get distinctDiameters => _getDistinctValues((tire) => tire.diameter)..sort();
+  List<String> get distinctCategories => _getDistinctValues((tire) => tire.category).where((c) => c != null).map((c) => c!).toList()..sort();
+  List<String> get distinctPrices => _getDistinctValues((tire) => tire.price.toString());
+  List<String> get distinctDescriptions => _getDistinctValues((tire) => tire.description).where((d) => d != null).map((d) => d!).toList()..sort();
+
+  List<String> getDistinctModelsForBrand(String? brand) {
+    if (brand == null) return [];
+    return _tires
+        .where((tire) => tire.brand == brand)
+        .map((tire) => tire.model)
+        .where((model) => model != null)
+        .map((model) => model!)
+        .toSet()
+        .toList()
+        ..sort();
+  }
+
+  List<T> _getDistinctValues<T>(T Function(Tire) getValue) {
+    return _tires
+        .map(getValue)
+        .where((value) => value != null)
+        .toSet()
+        .toList();
+  }
+
+  // Get filtered values for cascading picklists
+
   void updateColumnFilter(String column, String value) {
     _columnFilters[column] = value;
     _applyFilters();
@@ -43,9 +75,10 @@ class InventoryProvider with ChangeNotifier {
 
   bool _matchesFilters(Tire tire) {
     // Helper function to check if a value matches a filter
-    bool matchesFilter(String value, String filter) {
-      return filter.isEmpty || 
-             value.toLowerCase().contains(filter.toLowerCase());
+    bool matchesFilter(String? value, String filter) {
+      if (filter.isEmpty) return true;
+      if (value == null) return false;
+      return value.toLowerCase().contains(filter.toLowerCase());
     }
 
     // Check each column filter
@@ -65,19 +98,23 @@ class InventoryProvider with ChangeNotifier {
     if (query.isEmpty) {
       _filteredTires = _tires;
     } else {
+      final searchStr = query.toLowerCase();
       _filteredTires = _tires.where((tire) {
-        final searchStr = query.toLowerCase();
-        return tire.brand.toLowerCase().contains(searchStr) ||
-               tire.model.toLowerCase().contains(searchStr) ||
-               tire.width.toLowerCase().contains(searchStr) ||
-               tire.ratio.toLowerCase().contains(searchStr) ||
-               tire.diameter.toLowerCase().contains(searchStr) ||
-               tire.category.toLowerCase().contains(searchStr) ||
-               tire.description.toLowerCase().contains(searchStr) ||
-               tire.price.toString().contains(searchStr);
+        return matchesSearch(tire, searchStr);
       }).toList();
     }
     notifyListeners();
+  }
+
+  bool matchesSearch(Tire tire, String searchStr) {
+    return tire.brand.toLowerCase().contains(searchStr) ||
+           (tire.model?.toLowerCase() ?? '').contains(searchStr) ||
+           tire.width.toLowerCase().contains(searchStr) ||
+           tire.ratio.toLowerCase().contains(searchStr) ||
+           tire.diameter.toLowerCase().contains(searchStr) ||
+           (tire.category?.toLowerCase() ?? '').contains(searchStr) ||
+           (tire.description?.toLowerCase() ?? '').contains(searchStr) ||
+           (tire.price?.toString() ?? '').contains(searchStr);
   }
 
   Future<void> loadTires() async {

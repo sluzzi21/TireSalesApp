@@ -4,24 +4,24 @@ import 'package:uuid/uuid.dart';
 class Tire {
   final String id;
   final String brand;
-  final String model;
+  final String? model;
   final String width;
   final String ratio;
   final String diameter;
-  final double price;
-  final String category;
-  final String description;
+  final double? price;
+  final String? category;
+  final String? description;
 
   Tire({
     String? id,
     required this.brand,
-    required this.model,
+    this.model,
     required this.width,
     required this.ratio,
     required this.diameter,
-    required this.price,
-    required this.category,
-    required this.description,
+    this.price,
+    this.category,
+    this.description,
   }) : id = id ?? const Uuid().v4();
 
   String get size => '$width/$ratio R$diameter';
@@ -30,13 +30,13 @@ class Tire {
     return Tire(
       id: json['id'] as String,
       brand: json['brand'] as String,
-      model: json['model'] as String,
+      model: json['model'] as String? ?? '',
       width: json['width'] as String,
       ratio: json['ratio'] as String,
       diameter: json['diameter'] as String,
-      price: (json['price'] as num).toDouble(),
-      category: json['category'] as String,
-      description: json['description'] as String,
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      category: json['category'] as String? ?? '',
+      description: json['description'] as String? ?? '',
     );
   }
 
@@ -44,13 +44,13 @@ class Tire {
     return {
       'id': id,
       'brand': brand,
-      'model': model,
+      'model': model ?? '',
       'width': width,
       'ratio': ratio,
       'diameter': diameter,
-      'price': price,
-      'category': category,
-      'description': description,
+      'price': price ?? 0.0,
+      'category': category ?? '',
+      'description': description ?? '',
     };
   }
 
@@ -61,8 +61,8 @@ class Tire {
     String? width,
     String? ratio,
     String? diameter,
-    String? category,
     double? price,
+    String? category,
     String? description,
   }) {
     return Tire(
@@ -72,14 +72,14 @@ class Tire {
       width: width ?? this.width,
       ratio: ratio ?? this.ratio,
       diameter: diameter ?? this.diameter,
-      category: category ?? this.category,
       price: price ?? this.price,
+      category: category ?? this.category,
       description: description ?? this.description,
     );
   }
 
   @override
   String toString() {
-    return 'Tire(id: $id, brand: $brand, model: $model, size: $size, price: \$${price.toStringAsFixed(2)}, category: $category)';
+    return 'Tire(id: $id, brand: $brand, model: ${model ?? ''}, size: $size, price: \$${price?.toStringAsFixed(2) ?? 'N/A'}, category: ${category ?? ''})';
   }
 }

@@ -108,95 +108,113 @@ class _TireListState extends State<TireList> {
               rows: widget.tires.map((tire) {
                 return DataRow(
                   cells: [
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(tire.brand),
-                    )),
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(tire.model),
-                    )),
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(tire.width.toString()),
-                    )),
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(tire.ratio.toString()),
-                    )),
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(tire.diameter.toString()),
-                    )),
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(tire.category),
-                    )),
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Text(tire.price.toStringAsFixed(2)),
-                    )),
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      constraints: const BoxConstraints(maxWidth: 300),
-                      child: Text(
-                        tire.description,
-                        overflow: TextOverflow.ellipsis,
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.brand),
                       ),
-                    )),
-                    DataCell(Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, size: 20),
-                            constraints: const BoxConstraints(),
-                            padding: const EdgeInsets.all(8),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => EditTireDialog(tire: tire),
-                              );
-                            },
-                            tooltip: 'Edit',
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-                            constraints: const BoxConstraints(),
-                            padding: const EdgeInsets.all(8),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Delete Tire'),
-                                  content: Text(
-                                    'Are you sure you want to delete ${tire.brand} ${tire.model}?'
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(),
-                                      child: const Text('Cancel'),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.model ?? ''),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.width.toString()),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.ratio.toString()),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.diameter.toString()),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.category ?? ''),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.price?.toStringAsFixed(2) ?? ''),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        constraints: const BoxConstraints(maxWidth: 300),
+                        child: Text(
+                          tire.description ?? '',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, size: 20),
+                              constraints: const BoxConstraints(),
+                              padding: const EdgeInsets.all(8),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => EditTireDialog(tire: tire),
+                                );
+                              },
+                              tooltip: 'Edit',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                              constraints: const BoxConstraints(),
+                              padding: const EdgeInsets.all(8),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete Tire'),
+                                    content: Text(
+                                      'Are you sure you want to delete ${tire.brand} ${tire.model}?'
                                     ),
-                                    TextButton(
-                                      onPressed: () {
-                                        context.read<InventoryProvider>().deleteTire(tire.id);
-                                        Navigator.of(context).pop();
-                                      },
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: Colors.red,
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(),
+                                        child: const Text('Cancel'),
                                       ),
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            tooltip: 'Delete',
-                          ),
-                        ],
+                                      TextButton(
+                                        onPressed: () {
+                                          context.read<InventoryProvider>().deleteTire(tire.id);
+                                          Navigator.of(context).pop();
+                                        },
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.red,
+                                        ),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              tooltip: 'Delete',
+                            ),
+                          ],
+                        ),
                       ),
-                    )),
+                    ),
                   ],
                 );
               }).toList(),

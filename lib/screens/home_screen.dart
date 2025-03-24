@@ -57,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     showDialog(
                       context: context,
+                      barrierDismissible: false, // Prevent dismissing by clicking outside
                       builder: (context) => const AddTireDialog(),
                     );
                   },
@@ -139,6 +140,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            barrierDismissible: false, // Prevent dismissing by clicking outside
+            builder: (context) => const AddTireDialog(),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
