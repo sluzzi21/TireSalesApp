@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tire_sales_app/providers/inventory_provider.dart';
+import 'package:tire_sales_app/providers/services_provider.dart';
+import 'package:tire_sales_app/providers/quote_provider.dart';
 import 'package:tire_sales_app/screens/home_screen.dart';
+import 'package:tire_sales_app/screens/services_screen.dart';
+import 'package:tire_sales_app/screens/quote_screen.dart';
 import 'package:tire_sales_app/services/storage_service.dart';
 import 'package:tire_sales_app/scripts/add_sample_tires.dart';
+import 'package:tire_sales_app/scripts/add_sample_services.dart';
 
 void main() {
   debugPrint('Starting app initialization...');
@@ -39,6 +44,8 @@ class MyApp extends StatelessWidget {
             return provider;
           },
         ),
+        ChangeNotifierProvider(create: (_) => ServicesProvider()),
+        ChangeNotifierProvider(create: (_) => QuoteProvider()),
       ],
       child: MaterialApp(
         title: 'Tire Sales App',
@@ -50,34 +57,20 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const HomeScreen(),
+          '/services': (context) => const ServicesScreen(),
+          '/quote': (context) => const QuoteScreen(),
           '/add-samples': (context) => Scaffold(
             appBar: AppBar(
-              title: const Text('Add Sample Tires'),
+              title: const Text('Add Samples'),
             ),
             body: Center(
-              child: FutureBuilder(
-                future: addSampleTires(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Sample tires added successfully!'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/');
-                        },
-                        child: const Text('Go to Home'),
-                      ),
-                    ],
-                  );
-                },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const AddSampleTires(),
+                  const SizedBox(height: 20),
+                  const AddSampleServices(),
+                ],
               ),
             ),
           ),

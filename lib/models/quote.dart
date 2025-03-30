@@ -1,5 +1,5 @@
 import 'package:uuid/uuid.dart';
-import 'tire.dart';
+import 'quote_item.dart';
 
 class QuoteItem {
   final String id;
@@ -53,33 +53,44 @@ class Quote {
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now();
 
-  double get totalAmount {
-    return items.fold(0, (sum, item) => sum + (item.price * item.quantity));
-  }
+  double get total => items.fold(0, (sum, item) => sum + item.price * item.quantity);
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'customerName': customerName,
-      'customerPhone': customerPhone,
-      'createdAt': createdAt.toIso8601String(),
-      'status': status,
-      'items': items.map((item) => item.toMap()).toList(),
-      'isConverted': isConverted ? 1 : 0,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'customerName': customerName,
+        'customerPhone': customerPhone,
+        'createdAt': createdAt.toIso8601String(),
+        'status': status,
+        'items': items.map((item) => item.toMap()).toList(),
+        'isConverted': isConverted,
+      };
 
-  factory Quote.fromMap(Map<String, dynamic> map) {
-    return Quote(
-      id: map['id'],
-      customerName: map['customerName'],
-      customerPhone: map['customerPhone'],
-      createdAt: DateTime.parse(map['createdAt']),
-      status: map['status'],
-      items: (map['items'] as List)
-          .map((item) => QuoteItem.fromMap(item))
-          .toList(),
-      isConverted: map['isConverted'] == 1,
-    );
-  }
+  factory Quote.fromJson(Map<String, dynamic> json) => Quote(
+        id: json['id'],
+        customerName: json['customerName'],
+        customerPhone: json['customerPhone'],
+        createdAt: DateTime.parse(json['createdAt']),
+        status: json['status'],
+        items: (json['items'] as List)
+            .map((item) => QuoteItem.fromMap(item))
+            .toList(),
+        isConverted: json['isConverted'],
+      );
+
+  Quote copyWith({
+    String? customerName,
+    String? customerPhone,
+    String? status,
+    List<QuoteItem>? items,
+    bool? isConverted,
+  }) =>
+      Quote(
+        id: id,
+        customerName: customerName ?? this.customerName,
+        customerPhone: customerPhone ?? this.customerPhone,
+        createdAt: createdAt,
+        status: status ?? this.status,
+        items: items ?? this.items,
+        isConverted: isConverted ?? this.isConverted,
+      );
 }
