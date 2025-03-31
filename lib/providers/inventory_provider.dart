@@ -41,6 +41,9 @@ class InventoryProvider with ChangeNotifier {
   List<String> get distinctCategories => _getDistinctValues((tire) => tire.category).where((c) => c != null).map((c) => c!).toList()..sort();
   List<String> get distinctPrices => _getDistinctValues((tire) => tire.price.toString());
   List<String> get distinctDescriptions => _getDistinctValues((tire) => tire.description).where((d) => d != null).map((d) => d!).toList()..sort();
+  List<String> get distinctStorageLocations1 => _getDistinctValues((tire) => tire.storageLocation1).where((s) => s != null).map((s) => s!).toList()..sort();
+  List<String> get distinctStorageLocations2 => _getDistinctValues((tire) => tire.storageLocation2).where((s) => s != null).map((s) => s!).toList()..sort();
+  List<String> get distinctStorageLocations3 => _getDistinctValues((tire) => tire.storageLocation3).where((s) => s != null).map((s) => s!).toList()..sort();
 
   List<String> getDistinctModelsForBrand(String? brand) {
     if (brand == null) return [];
