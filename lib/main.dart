@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tire_sales_app/providers/inventory_provider.dart';
-import 'package:tire_sales_app/providers/services_provider.dart';
-import 'package:tire_sales_app/providers/quote_provider.dart';
 import 'package:tire_sales_app/screens/home_screen.dart';
-import 'package:tire_sales_app/screens/services_screen.dart';
-import 'package:tire_sales_app/screens/quote_screen.dart';
 import 'package:tire_sales_app/services/storage_service.dart';
 import 'package:tire_sales_app/scripts/add_sample_tires.dart';
-import 'package:tire_sales_app/scripts/add_sample_services.dart';
 
 void main() {
   debugPrint('Starting app initialization...');
@@ -44,8 +39,6 @@ class MyApp extends StatelessWidget {
             return provider;
           },
         ),
-        ChangeNotifierProvider(create: (_) => ServicesProvider()),
-        ChangeNotifierProvider(create: (_) => QuoteProvider()),
       ],
       child: MaterialApp(
         title: 'Tire Sales App',
@@ -57,20 +50,19 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const HomeScreen(),
-          '/services': (context) => const ServicesScreen(),
-          '/quote': (context) => const QuoteScreen(),
           '/add-samples': (context) => Scaffold(
             appBar: AppBar(
-              title: const Text('Add Samples'),
+              title: const Text('Add Sample Data'),
             ),
             body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const AddSampleTires(),
-                  const SizedBox(height: 20),
-                  const AddSampleServices(),
-                ],
+              child: ElevatedButton(
+                onPressed: () {
+                  AddSampleTires.addSampleTires(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sample tires added successfully')),
+                  );
+                },
+                child: const Text('Add Sample Tires'),
               ),
             ),
           ),

@@ -14,6 +14,7 @@ class Tire {
   final String? storageLocation1;
   final String? storageLocation2;
   final String? storageLocation3;
+  final int quantity;
 
   Tire({
     String? id,
@@ -28,6 +29,7 @@ class Tire {
     this.storageLocation1,
     this.storageLocation2,
     this.storageLocation3,
+    this.quantity = 0,
   }) : id = id ?? const Uuid().v4();
 
   String get size => '$width/$ratio R$diameter';
@@ -46,6 +48,7 @@ class Tire {
       storageLocation1: json['storageLocation1'] as String? ?? '',
       storageLocation2: json['storageLocation2'] as String? ?? '',
       storageLocation3: json['storageLocation3'] as String? ?? '',
+      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -63,6 +66,7 @@ class Tire {
       'storageLocation1': storageLocation1 ?? '',
       'storageLocation2': storageLocation2 ?? '',
       'storageLocation3': storageLocation3 ?? '',
+      'quantity': quantity,
     };
   }
 
@@ -79,6 +83,7 @@ class Tire {
     String? storageLocation1,
     String? storageLocation2,
     String? storageLocation3,
+    int? quantity,
   }) {
     return Tire(
       id: id ?? this.id,
@@ -93,6 +98,7 @@ class Tire {
       storageLocation1: storageLocation1 ?? this.storageLocation1,
       storageLocation2: storageLocation2 ?? this.storageLocation2,
       storageLocation3: storageLocation3 ?? this.storageLocation3,
+      quantity: quantity ?? this.quantity,
     );
   }
 

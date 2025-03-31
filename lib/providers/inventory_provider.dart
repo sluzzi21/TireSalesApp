@@ -27,7 +27,8 @@ class InventoryProvider with ChangeNotifier {
     loadTires();
   }
 
-  List<Tire> get tires => _filteredTires.isEmpty ? _tires : _filteredTires;
+  List<Tire> get tires => _tires;
+  List<Tire> get filteredTires => _filteredTires.isEmpty ? _tires : _filteredTires;
   String? get error => _error;
   bool get isLoading => _isLoading;
 
@@ -60,8 +61,6 @@ class InventoryProvider with ChangeNotifier {
         .toSet()
         .toList();
   }
-
-  // Get filtered values for cascading picklists
 
   void updateColumnFilter(String column, String value) {
     _columnFilters[column] = value;
@@ -153,7 +152,6 @@ class InventoryProvider with ChangeNotifier {
     try {
       _tires = await _storageService.loadTires();
       debugPrint('Successfully loaded ${_tires.length} tires');
-      debugPrint('First tire: ${_tires.isNotEmpty ? _tires.first.toString() : "No tires"}');
       _filteredTires = _tires;
       _error = null;
     } catch (e) {
@@ -168,11 +166,28 @@ class InventoryProvider with ChangeNotifier {
     }
   }
 
+  Future<void> addTires(List<Tire> tires) async {
+    try {
+      debugPrint('Adding ${tires.length} tires');
+      _tires.addAll(tires);
+      await _storageService.saveTires(_tires);
+      _filteredTires = _tires;
+      notifyListeners();
+      debugPrint('Successfully added ${tires.length} tires');
+    } catch (e) {
+      debugPrint('Error adding tires: $e');
+      _error = 'Failed to add tires: $e';
+      notifyListeners();
+    }
+  }
+
   Future<void> addTire(Tire tire) async {
     debugPrint('Adding new tire: ${tire.id}');
     try {
-      await _storageService.addTire(tire);
-      await loadTires();
+      _tires.add(tire);
+      await _storageService.saveTires(_tires);
+      _filteredTires = _tires;
+      notifyListeners();
     } catch (e) {
       debugPrint('Error adding tire: $e');
       _error = 'Failed to add tire: $e';
@@ -183,8 +198,15 @@ class InventoryProvider with ChangeNotifier {
   Future<void> updateTire(Tire tire) async {
     debugPrint('Updating tire: ${tire.id}');
     try {
-      await _storageService.updateTire(tire);
-      await loadTires();
+      final index = _tires.indexWhere((t) => t.id == tire.id);
+      if (index != -1) {
+        _tires[index] = tire;
+        await _storageService.saveTires(_tires);
+        _filteredTires = _tires;
+        notifyListeners();
+      } else {
+        throw Exception('Tire not found: ${tire.id}');
+      }
     } catch (e) {
       debugPrint('Error updating tire: $e');
       _error = 'Failed to update tire: $e';
@@ -195,8 +217,10 @@ class InventoryProvider with ChangeNotifier {
   Future<void> deleteTire(String id) async {
     debugPrint('Deleting tire: $id');
     try {
-      await _storageService.deleteTire(id);
-      await loadTires();
+      _tires.removeWhere((tire) => tire.id == id);
+      await _storageService.saveTires(_tires);
+      _filteredTires = _tires;
+      notifyListeners();
     } catch (e) {
       debugPrint('Error deleting tire: $e');
       _error = 'Failed to delete tire: $e';
