@@ -11,6 +11,9 @@ class Tire {
   final double? price;
   final String? category;
   final String? description;
+  final String? storageLocation1;
+  final String? storageLocation2;
+  final String? storageLocation3;
 
   Tire({
     String? id,
@@ -22,6 +25,9 @@ class Tire {
     this.price,
     this.category,
     this.description,
+    this.storageLocation1,
+    this.storageLocation2,
+    this.storageLocation3,
   }) : id = id ?? const Uuid().v4();
 
   String get size => '$width/$ratio R$diameter';
@@ -37,6 +43,9 @@ class Tire {
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       category: json['category'] as String? ?? '',
       description: json['description'] as String? ?? '',
+      storageLocation1: json['storageLocation1'] as String? ?? '',
+      storageLocation2: json['storageLocation2'] as String? ?? '',
+      storageLocation3: json['storageLocation3'] as String? ?? '',
     );
   }
 
@@ -51,6 +60,9 @@ class Tire {
       'price': price ?? 0.0,
       'category': category ?? '',
       'description': description ?? '',
+      'storageLocation1': storageLocation1 ?? '',
+      'storageLocation2': storageLocation2 ?? '',
+      'storageLocation3': storageLocation3 ?? '',
     };
   }
 
@@ -64,6 +76,9 @@ class Tire {
     double? price,
     String? category,
     String? description,
+    String? storageLocation1,
+    String? storageLocation2,
+    String? storageLocation3,
   }) {
     return Tire(
       id: id ?? this.id,
@@ -75,6 +90,9 @@ class Tire {
       price: price ?? this.price,
       category: category ?? this.category,
       description: description ?? this.description,
+      storageLocation1: storageLocation1 ?? this.storageLocation1,
+      storageLocation2: storageLocation2 ?? this.storageLocation2,
+      storageLocation3: storageLocation3 ?? this.storageLocation3,
     );
   }
 

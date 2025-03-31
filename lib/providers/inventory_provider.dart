@@ -17,11 +17,13 @@ class InventoryProvider with ChangeNotifier {
     'category': '',
     'price': '',
     'description': '',
+    'storageLocation1': '',
+    'storageLocation2': '',
+    'storageLocation3': '',
   };
 
   InventoryProvider(this._storageService) {
     debugPrint('InventoryProvider initialized with StorageService');
-    // Load tires immediately when provider is created
     loadTires();
   }
 
@@ -81,15 +83,40 @@ class InventoryProvider with ChangeNotifier {
       return value.toLowerCase().contains(filter.toLowerCase());
     }
 
-    // Check each column filter
+    // Special handling for price filter
+    if (_columnFilters['price']!.isNotEmpty) {
+      final priceFilter = _columnFilters['price']!;
+      
+      if (tire.price == null) return false;
+
+      if (priceFilter.startsWith('>=') || priceFilter.startsWith('<=')) {
+        final operator = priceFilter.substring(0, 2);
+        final filterPrice = double.tryParse(priceFilter.substring(2).trim());
+        
+        if (filterPrice != null) {
+          if (operator == '>=') {
+            if (tire.price! < filterPrice) return false;
+          } else { // <=
+            if (tire.price! > filterPrice) return false;
+          }
+        }
+      } else {
+        // If no operator, use contains
+        if (!matchesFilter(tire.price.toString(), priceFilter)) return false;
+      }
+    }
+
+    // Check other column filters
     if (!matchesFilter(tire.brand, _columnFilters['brand']!)) return false;
     if (!matchesFilter(tire.model, _columnFilters['model']!)) return false;
     if (!matchesFilter(tire.width, _columnFilters['width']!)) return false;
     if (!matchesFilter(tire.ratio, _columnFilters['ratio']!)) return false;
     if (!matchesFilter(tire.diameter, _columnFilters['diameter']!)) return false;
     if (!matchesFilter(tire.category, _columnFilters['category']!)) return false;
-    if (!matchesFilter(tire.price.toString(), _columnFilters['price']!)) return false;
     if (!matchesFilter(tire.description, _columnFilters['description']!)) return false;
+    if (!matchesFilter(tire.storageLocation1, _columnFilters['storageLocation1']!)) return false;
+    if (!matchesFilter(tire.storageLocation2, _columnFilters['storageLocation2']!)) return false;
+    if (!matchesFilter(tire.storageLocation3, _columnFilters['storageLocation3']!)) return false;
 
     return true;
   }

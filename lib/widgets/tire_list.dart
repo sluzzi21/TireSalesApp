@@ -16,11 +16,14 @@ class TireList extends StatefulWidget {
 class _TireListState extends State<TireList> {
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
+  String _priceOperator = '<=';
+  final _priceController = TextEditingController();
 
   @override
   void dispose() {
     _horizontalScrollController.dispose();
     _verticalScrollController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -46,6 +49,72 @@ class _TireListState extends State<TireList> {
   }
 
   Widget _buildColumnHeader(String title, String column) {
+    if (column == 'price') {
+      return Container(
+        width: 200,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 60,
+                  child: DropdownButtonFormField<String>(
+                    value: _priceOperator,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: '<=', child: Text('<=')),
+                      DropdownMenuItem(value: '>=', child: Text('>=')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _priceOperator = value;
+                        });
+                        _updatePriceFilter();
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _priceController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      hintText: 'Enter price...',
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                    onChanged: (_) => _updatePriceFilter(),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       width: column == 'description' ? 300 : 120,
       child: Column(
@@ -64,6 +133,15 @@ class _TireListState extends State<TireList> {
         ],
       ),
     );
+  }
+
+  void _updatePriceFilter() {
+    final price = _priceController.text.trim();
+    if (price.isEmpty) {
+      context.read<InventoryProvider>().updateColumnFilter('price', '');
+    } else {
+      context.read<InventoryProvider>().updateColumnFilter('price', '$_priceOperator$price');
+    }
   }
 
   @override
@@ -95,6 +173,9 @@ class _TireListState extends State<TireList> {
                 DataColumn(label: _buildColumnHeader('Category', 'category')),
                 DataColumn(label: _buildColumnHeader('Price', 'price')),
                 DataColumn(label: _buildColumnHeader('Description', 'description')),
+                DataColumn(label: _buildColumnHeader('Storage 1', 'storageLocation1')),
+                DataColumn(label: _buildColumnHeader('Storage 2', 'storageLocation2')),
+                DataColumn(label: _buildColumnHeader('Storage 3', 'storageLocation3')),
                 DataColumn(
                   label: Container(
                     padding: const EdgeInsets.only(left: 8),
@@ -158,6 +239,24 @@ class _TireListState extends State<TireList> {
                           tire.description ?? '',
                           overflow: TextOverflow.ellipsis,
                         ),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.storageLocation1 ?? ''),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.storageLocation2 ?? ''),
+                      ),
+                    ),
+                    DataCell(
+                      Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(tire.storageLocation3 ?? ''),
                       ),
                     ),
                     DataCell(
