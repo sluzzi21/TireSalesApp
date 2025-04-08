@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tire_sales_app/providers/auth_provider.dart';
 import 'package:tire_sales_app/providers/inventory_provider.dart';
 import 'package:tire_sales_app/screens/home_screen.dart';
+import 'package:tire_sales_app/screens/login_screen.dart';
+import 'package:tire_sales_app/services/auth_service.dart';
 import 'package:tire_sales_app/services/storage_service.dart';
-import 'package:tire_sales_app/scripts/add_sample_tires.dart';
+import 'package:tire_sales_app/widgets/change_password_dialog.dart';
 
 void main() {
   debugPrint('Starting app initialization...');
@@ -12,8 +15,9 @@ void main() {
   
   try {
     final storageService = StorageService();
-    debugPrint('StorageService created successfully');
-    runApp(MyApp(storageService: storageService));
+    final authService = AuthService();
+    debugPrint('Services created successfully');
+    runApp(MyApp(storageService: storageService, authService: authService));
     debugPrint('MyApp started');
   } catch (e) {
     debugPrint('Error during app initialization: $e');
@@ -23,8 +27,9 @@ void main() {
 
 class MyApp extends StatelessWidget {
   final StorageService storageService;
+  final AuthService authService;
   
-  const MyApp({super.key, required this.storageService});
+  const MyApp({super.key, required this.storageService, required this.authService});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +44,12 @@ class MyApp extends StatelessWidget {
             return provider;
           },
         ),
+        ChangeNotifierProvider(
+          create: (_) {
+            debugPrint('Creating AuthProvider');
+            return AuthProvider(authService);
+          },
+        ),
       ],
       child: MaterialApp(
         title: 'Tire Sales App',
@@ -47,26 +58,26 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const HomeScreen(),
-          '/add-samples': (context) => Scaffold(
-            appBar: AppBar(
-              title: const Text('Add Sample Data'),
-            ),
-            body: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  AddSampleTires.addSampleTires(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sample tires added successfully')),
-                  );
-                },
-                child: const Text('Add Sample Tires'),
-              ),
-            ),
-          ),
-        },
+        home: Consumer<AuthProvider>(
+          builder: (context, authProvider, _) {
+            if (!authProvider.isLoggedIn) {
+              return const LoginScreen();
+            }
+
+            if (authProvider.currentUser?.requirePasswordChange ?? false) {
+              // Show password change dialog if required
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (ctx) => const ChangePasswordDialog(),
+                );
+              });
+            }
+
+            return const HomeScreen();
+          },
+        ),
       ),
     );
   }
