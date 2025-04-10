@@ -45,13 +45,15 @@ class Tire {
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       category: json['category'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      storageLocation1: json['storageLocation1'] as String? ?? '',
-      storageLocation2: json['storageLocation2'] as String? ?? '',
-      storageLocation3: json['storageLocation3'] as String? ?? '',
+      storageLocation1: json['storage_location1'] as String? ?? '',
+      storageLocation2: json['storage_location2'] as String? ?? '',
+      storageLocation3: json['storage_location3'] as String? ?? '',
       quantity: (json['quantity'] as num?)?.toInt() ?? 0,
     );
   }
 
+  /// Convert to JSON for local storage (includes all fields)
+  /// Convert to JSON for local storage (includes all fields)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -63,9 +65,25 @@ class Tire {
       'price': price ?? 0.0,
       'category': category ?? '',
       'description': description ?? '',
-      'storageLocation1': storageLocation1 ?? '',
-      'storageLocation2': storageLocation2 ?? '',
-      'storageLocation3': storageLocation3 ?? '',
+      'storage_location1': storageLocation1 ?? '',
+      'storage_location2': storageLocation2 ?? '',
+      'storage_location3': storageLocation3 ?? '',
+      'quantity': quantity,
+    };
+  }
+
+  /// Convert to JSON for Supabase (only includes fields that exist in the database)
+  Map<String, dynamic> toSupabaseJson() {
+    return {
+      'id': id,
+      'brand': brand,
+      'model': model ?? '',
+      'width': width,
+      'ratio': ratio,
+      'diameter': diameter,
+      'price': price ?? 0.0,
+      'category': category ?? '',
+      'description': description ?? '',
       'quantity': quantity,
     };
   }

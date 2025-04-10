@@ -4,6 +4,8 @@ import '../providers/inventory_provider.dart';
 import '../models/tire.dart';
 import '../widgets/add_tire_dialog.dart';
 import '../widgets/tire_list.dart';
+import 'supabase_test_screen.dart';
+import 'supabase_service_test_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -37,6 +39,30 @@ class HomeScreen extends StatelessWidget {
             tooltip: 'Add Sample Data',
             onPressed: () {
               Navigator.pushNamed(context, '/add-samples');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.bug_report),
+            tooltip: 'Supabase Test',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SupabaseTestScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.science),
+            tooltip: 'Service Tests',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SupabaseServiceTestScreen(),
+                ),
+              );
             },
           ),
         ],
