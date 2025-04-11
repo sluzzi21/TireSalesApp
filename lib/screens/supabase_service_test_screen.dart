@@ -36,7 +36,11 @@ class _SupabaseServiceTestScreenState extends State<SupabaseServiceTestScreen> {
 
   Future<void> _testInitialize() async {
     await _runTest('Initialize', () async {
-      await _service.initialize();
+      if (_service.isInitialized) {
+        print('Service is already initialized');
+      } else {
+        await _service.initialize();
+      }
     });
   }
 

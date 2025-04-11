@@ -20,13 +20,25 @@ class SupabaseService {
 
   /// Initialize Supabase client
   Future<void> initialize() async {
-    if (_isInitialized) return;
+    if (_isInitialized) {
+      _client = Supabase.instance.client;
+      return;
+    }
 
     try {
-      await Supabase.initialize(
-        url: SupabaseConfig.url,
-        anonKey: SupabaseConfig.anonKey,
-      );
+      bool alreadyInitialized = false;
+      try {
+        Supabase.instance;
+        alreadyInitialized = true;
+      } catch (_) {}
+
+      if (!alreadyInitialized) {
+        await Supabase.initialize(
+          url: SupabaseConfig.url,
+          anonKey: SupabaseConfig.anonKey,
+        );
+      }
+      
       _client = Supabase.instance.client;
       _isInitialized = true;
     } catch (e) {

@@ -30,12 +30,14 @@ class _SupabaseTestScreenState extends State<SupabaseTestScreen> {
     });
 
     try {
+      bool alreadyInitialized = false;
       try {
-        // Try to access the client, if it works, we're already initialized
-        final _ = Supabase.instance;
+        Supabase.instance;
+        alreadyInitialized = true;
         setState(() => _status = 'Already connected to Supabase');
-      } catch (_) {
-        // Not initialized, so initialize it
+      } catch (_) {}
+
+      if (!alreadyInitialized) {
         await Supabase.initialize(
           url: SupabaseConfig.url,
           anonKey: SupabaseConfig.anonKey,

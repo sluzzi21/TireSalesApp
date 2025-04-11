@@ -173,9 +173,9 @@ class _TireListState extends State<TireList> {
                 DataColumn(label: _buildColumnHeader('Category', 'category')),
                 DataColumn(label: _buildColumnHeader('Price', 'price')),
                 DataColumn(label: _buildColumnHeader('Description', 'description')),
-                DataColumn(label: _buildColumnHeader('Storage 1', 'storageLocation1')),
-                DataColumn(label: _buildColumnHeader('Storage 2', 'storageLocation2')),
-                DataColumn(label: _buildColumnHeader('Storage 3', 'storageLocation3')),
+                DataColumn(label: _buildColumnHeader('Storage 1', 'storage_location1')),
+                DataColumn(label: _buildColumnHeader('Storage 2', 'storage_location2')),
+                DataColumn(label: _buildColumnHeader('Storage 3', 'storage_location3')),
                 DataColumn(
                   label: Container(
                     padding: const EdgeInsets.only(left: 8),
@@ -244,19 +244,19 @@ class _TireListState extends State<TireList> {
                     DataCell(
                       Container(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Text(tire.storageLocation1 ?? ''),
+                        child: Text(tire.storage_location1 ?? ''),
                       ),
                     ),
                     DataCell(
                       Container(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Text(tire.storageLocation2 ?? ''),
+                        child: Text(tire.storage_location2 ?? ''),
                       ),
                     ),
                     DataCell(
                       Container(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Text(tire.storageLocation3 ?? ''),
+                        child: Text(tire.storage_location3 ?? ''),
                       ),
                     ),
                     DataCell(

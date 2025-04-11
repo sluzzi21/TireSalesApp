@@ -22,9 +22,9 @@ class _AddTireDialogState extends State<AddTireDialog> {
   double? _price;
   String? _description;
   int _quantity = 1;
-  String? _storageLocation1;
-  String? _storageLocation2;
-  String? _storageLocation3;
+  String? _storage_location1;
+  String? _storage_location2;
+  String? _storage_location3;
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +260,7 @@ class _AddTireDialogState extends State<AddTireDialog> {
                     Expanded(
                       child: wrapDropdown(
                         DropdownButtonFormField<String>(
-                          value: _storageLocation1,
+                          value: _storage_location1,
                           decoration: const InputDecoration(labelText: 'Storage 1'),
                           items: [
                             ...inventoryProvider.distinctStorageLocations1.map((location) => DropdownMenuItem(
@@ -270,7 +270,7 @@ class _AddTireDialogState extends State<AddTireDialog> {
                           ],
                           onChanged: (value) {
                             setState(() {
-                              _storageLocation1 = value;
+                              _storage_location1 = value;
                             });
                           },
                         ),
@@ -281,7 +281,7 @@ class _AddTireDialogState extends State<AddTireDialog> {
                     Expanded(
                       child: wrapDropdown(
                         DropdownButtonFormField<String>(
-                          value: _storageLocation2,
+                          value: _storage_location2,
                           decoration: const InputDecoration(labelText: 'Storage 2'),
                           items: [
                             ...inventoryProvider.distinctStorageLocations2.map((location) => DropdownMenuItem(
@@ -291,7 +291,7 @@ class _AddTireDialogState extends State<AddTireDialog> {
                           ],
                           onChanged: (value) {
                             setState(() {
-                              _storageLocation2 = value;
+                              _storage_location2 = value;
                             });
                           },
                         ),
@@ -302,7 +302,7 @@ class _AddTireDialogState extends State<AddTireDialog> {
                     Expanded(
                       child: wrapDropdown(
                         DropdownButtonFormField<String>(
-                          value: _storageLocation3,
+                          value: _storage_location3,
                           decoration: const InputDecoration(labelText: 'Storage 3'),
                           items: [
                             ...inventoryProvider.distinctStorageLocations3.map((location) => DropdownMenuItem(
@@ -312,7 +312,7 @@ class _AddTireDialogState extends State<AddTireDialog> {
                           ],
                           onChanged: (value) {
                             setState(() {
-                              _storageLocation3 = value;
+                              _storage_location3 = value;
                             });
                           },
                         ),
@@ -345,9 +345,9 @@ class _AddTireDialogState extends State<AddTireDialog> {
                   price: _price,
                   description: _description,
                   quantity: _quantity,
-                  storageLocation1: _storageLocation1,
-                  storageLocation2: _storageLocation2,
-                  storageLocation3: _storageLocation3,
+                  storage_location1: _storage_location1,
+                  storage_location2: _storage_location2,
+                  storage_location3: _storage_location3,
                 );
 
                 inventoryProvider.addTire(tire);

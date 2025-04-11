@@ -11,10 +11,12 @@ class Tire {
   final double? price;
   final String? category;
   final String? description;
-  final String? storageLocation1;
-  final String? storageLocation2;
-  final String? storageLocation3;
+  final String? storage_location1;
+  final String? storage_location2;
+  final String? storage_location3;
   final int quantity;
+  final DateTime? created_at;
+  final DateTime? updated_at;
 
   Tire({
     String? id,
@@ -26,10 +28,12 @@ class Tire {
     this.price,
     this.category,
     this.description,
-    this.storageLocation1,
-    this.storageLocation2,
-    this.storageLocation3,
+    this.storage_location1,
+    this.storage_location2,
+    this.storage_location3,
     this.quantity = 0,
+    this.created_at,
+    this.updated_at,
   }) : id = id ?? const Uuid().v4();
 
   String get size => '$width/$ratio R$diameter';
@@ -45,10 +49,12 @@ class Tire {
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       category: json['category'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      storageLocation1: json['storage_location1'] as String? ?? '',
-      storageLocation2: json['storage_location2'] as String? ?? '',
-      storageLocation3: json['storage_location3'] as String? ?? '',
+      storage_location1: json['storage_location1'] as String? ?? '',
+      storage_location2: json['storage_location2'] as String? ?? '',
+      storage_location3: json['storage_location3'] as String? ?? '',
       quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+      created_at: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      updated_at: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
     );
   }
 
@@ -65,10 +71,12 @@ class Tire {
       'price': price ?? 0.0,
       'category': category ?? '',
       'description': description ?? '',
-      'storage_location1': storageLocation1 ?? '',
-      'storage_location2': storageLocation2 ?? '',
-      'storage_location3': storageLocation3 ?? '',
+      'storage_location1': storage_location1 ?? '',
+      'storage_location2': storage_location2 ?? '',
+      'storage_location3': storage_location3 ?? '',
       'quantity': quantity,
+      'created_at': created_at?.toIso8601String(),
+      'updated_at': updated_at?.toIso8601String(),
     };
   }
 
@@ -84,7 +92,11 @@ class Tire {
       'price': price ?? 0.0,
       'category': category ?? '',
       'description': description ?? '',
+      'storage_location1': storage_location1 ?? '',
+      'storage_location2': storage_location2 ?? '',
+      'storage_location3': storage_location3 ?? '',
       'quantity': quantity,
+      // created_at and updated_at are handled by Supabase
     };
   }
 
@@ -98,10 +110,12 @@ class Tire {
     double? price,
     String? category,
     String? description,
-    String? storageLocation1,
-    String? storageLocation2,
-    String? storageLocation3,
+    String? storage_location1,
+    String? storage_location2,
+    String? storage_location3,
     int? quantity,
+    DateTime? created_at,
+    DateTime? updated_at,
   }) {
     return Tire(
       id: id ?? this.id,
@@ -113,10 +127,12 @@ class Tire {
       price: price ?? this.price,
       category: category ?? this.category,
       description: description ?? this.description,
-      storageLocation1: storageLocation1 ?? this.storageLocation1,
-      storageLocation2: storageLocation2 ?? this.storageLocation2,
-      storageLocation3: storageLocation3 ?? this.storageLocation3,
+      storage_location1: storage_location1 ?? this.storage_location1,
+      storage_location2: storage_location2 ?? this.storage_location2,
+      storage_location3: storage_location3 ?? this.storage_location3,
       quantity: quantity ?? this.quantity,
+      created_at: created_at ?? this.created_at,
+      updated_at: updated_at ?? this.updated_at,
     );
   }
 

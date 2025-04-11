@@ -17,9 +17,9 @@ class InventoryProvider with ChangeNotifier {
     'category': '',
     'price': '',
     'description': '',
-    'storageLocation1': '',
-    'storageLocation2': '',
-    'storageLocation3': '',
+    'storage_location1': '',
+    'storage_location2': '',
+    'storage_location3': '',
   };
 
   InventoryProvider(this._storageService) {
@@ -41,9 +41,9 @@ class InventoryProvider with ChangeNotifier {
   List<String> get distinctCategories => _getDistinctValues((tire) => tire.category).where((c) => c != null).map((c) => c!).toList()..sort();
   List<String> get distinctPrices => _getDistinctValues((tire) => tire.price.toString());
   List<String> get distinctDescriptions => _getDistinctValues((tire) => tire.description).where((d) => d != null).map((d) => d!).toList()..sort();
-  List<String> get distinctStorageLocations1 => _getDistinctValues((tire) => tire.storageLocation1).where((s) => s != null).map((s) => s!).toList()..sort();
-  List<String> get distinctStorageLocations2 => _getDistinctValues((tire) => tire.storageLocation2).where((s) => s != null).map((s) => s!).toList()..sort();
-  List<String> get distinctStorageLocations3 => _getDistinctValues((tire) => tire.storageLocation3).where((s) => s != null).map((s) => s!).toList()..sort();
+  List<String> get distinctStorageLocations1 => _getDistinctValues((tire) => tire.storage_location1).where((s) => s != null).map((s) => s!).toList()..sort();
+  List<String> get distinctStorageLocations2 => _getDistinctValues((tire) => tire.storage_location2).where((s) => s != null).map((s) => s!).toList()..sort();
+  List<String> get distinctStorageLocations3 => _getDistinctValues((tire) => tire.storage_location3).where((s) => s != null).map((s) => s!).toList()..sort();
 
   List<String> getDistinctModelsForBrand(String? brand) {
     if (brand == null) return [];
@@ -116,9 +116,9 @@ class InventoryProvider with ChangeNotifier {
     if (!matchesFilter(tire.diameter, _columnFilters['diameter']!)) return false;
     if (!matchesFilter(tire.category, _columnFilters['category']!)) return false;
     if (!matchesFilter(tire.description, _columnFilters['description']!)) return false;
-    if (!matchesFilter(tire.storageLocation1, _columnFilters['storageLocation1']!)) return false;
-    if (!matchesFilter(tire.storageLocation2, _columnFilters['storageLocation2']!)) return false;
-    if (!matchesFilter(tire.storageLocation3, _columnFilters['storageLocation3']!)) return false;
+    if (!matchesFilter(tire.storage_location1, _columnFilters['storage_location1']!)) return false;
+    if (!matchesFilter(tire.storage_location2, _columnFilters['storage_location2']!)) return false;
+    if (!matchesFilter(tire.storage_location3, _columnFilters['storage_location3']!)) return false;
 
     return true;
   }
