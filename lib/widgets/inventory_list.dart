@@ -27,7 +27,15 @@ class InventoryList extends StatelessWidget {
         Expanded(
           child: Consumer<InventoryProvider>(
             builder: (context, provider, child) {
-              final tires = provider.tires;
+              if (provider.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (provider.error != null) {
+                return Center(child: Text('Error: ${provider.error}'));
+              }
+
+              final tires = provider.filteredTires;
               
               if (tires.isEmpty) {
                 return Center(

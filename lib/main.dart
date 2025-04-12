@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tire_sales_app/providers/inventory_provider.dart';
 import 'package:tire_sales_app/screens/home_screen.dart';
-import 'package:tire_sales_app/services/storage_service.dart';
 import 'package:tire_sales_app/scripts/add_sample_tires.dart';
 
 void main() {
@@ -11,9 +10,7 @@ void main() {
   debugPrint('Flutter bindings initialized');
   
   try {
-    final storageService = StorageService();
-    debugPrint('StorageService created successfully');
-    runApp(MyApp(storageService: storageService));
+    runApp(const MyApp());
     debugPrint('MyApp started');
   } catch (e) {
     debugPrint('Error during app initialization: $e');
@@ -22,9 +19,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final StorageService storageService;
-  
-  const MyApp({super.key, required this.storageService});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +29,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) {
             debugPrint('Creating InventoryProvider');
-            final provider = InventoryProvider(storageService);
+            final provider = InventoryProvider();
             debugPrint('InventoryProvider created');
             return provider;
           },

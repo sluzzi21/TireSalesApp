@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tire_sales_app/models/tire.dart';
-import 'package:tire_sales_app/services/storage_service.dart';
+import 'package:tire_sales_app/services/supabase_service.dart';
 
 class InventoryProvider with ChangeNotifier {
-  final StorageService _storageService;
+  final _supabaseService = SupabaseService.instance;
   List<Tire> _tires = [];
   List<Tire> _filteredTires = [];
   String? _error;
@@ -22,13 +22,13 @@ class InventoryProvider with ChangeNotifier {
     'storage_location3': '',
   };
 
-  InventoryProvider(this._storageService) {
-    debugPrint('InventoryProvider initialized with StorageService');
+  InventoryProvider() {
+    debugPrint('InventoryProvider initialized with SupabaseService');
     loadTires();
   }
 
   List<Tire> get tires => _tires;
-  List<Tire> get filteredTires => _filteredTires.isEmpty ? _tires : _filteredTires;
+  List<Tire> get filteredTires => _filteredTires;
   String? get error => _error;
   bool get isLoading => _isLoading;
 
@@ -123,9 +123,13 @@ class InventoryProvider with ChangeNotifier {
     return true;
   }
 
-  void searchTires(String query) {
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
     if (query.isEmpty) {
-      _filteredTires = _tires;
+      _filteredTires = List.from(_tires);
     } else {
       final searchStr = query.toLowerCase();
       _filteredTires = _tires.where((tire) {
@@ -147,16 +151,18 @@ class InventoryProvider with ChangeNotifier {
   }
 
   Future<void> loadTires() async {
-    debugPrint('Loading tires from storage');
+    debugPrint('Loading tires from Supabase');
     _error = null;
     _isLoading = true;
     notifyListeners();
 
     try {
-      _tires = await _storageService.loadTires();
+      await _supabaseService.initialize();
+      _tires = await _supabaseService.getTires();
       debugPrint('Successfully loaded ${_tires.length} tires');
-      _filteredTires = _tires;
+      _filteredTires = List.from(_tires); // Create a new list
       _error = null;
+      debugPrint('Tires loaded and filtered');
     } catch (e) {
       debugPrint('Error loading tires: $e');
       _error = 'Failed to load tires: $e';
@@ -164,7 +170,7 @@ class InventoryProvider with ChangeNotifier {
       _filteredTires = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      notifyListeners(); // This will trigger a UI update
       debugPrint('Finished loading tires. Loading: $_isLoading, Error: $_error, Tires count: ${_tires.length}');
     }
   }
@@ -172,10 +178,10 @@ class InventoryProvider with ChangeNotifier {
   Future<void> addTires(List<Tire> tires) async {
     try {
       debugPrint('Adding ${tires.length} tires');
-      _tires.addAll(tires);
-      await _storageService.saveTires(_tires);
-      _filteredTires = _tires;
-      notifyListeners();
+      for (final tire in tires) {
+        await _supabaseService.addTire(tire);
+      }
+      await loadTires(); // Reload tires from Supabase
       debugPrint('Successfully added ${tires.length} tires');
     } catch (e) {
       debugPrint('Error adding tires: $e');
@@ -187,29 +193,31 @@ class InventoryProvider with ChangeNotifier {
   Future<void> addTire(Tire tire) async {
     debugPrint('Adding new tire: ${tire.id}');
     try {
-      _tires.add(tire);
-      await _storageService.saveTires(_tires);
-      _filteredTires = _tires;
-      notifyListeners();
+      _isLoading = true;
+      notifyListeners(); // Show loading state
+
+      await _supabaseService.addTire(tire);
+      _tires = await _supabaseService.getTires(); // Get fresh data
+      _filteredTires = List.from(_tires); // Create a new filtered list
+      _error = null;
+
+      debugPrint('Successfully added tire and reloaded data');
     } catch (e) {
       debugPrint('Error adding tire: $e');
       _error = 'Failed to add tire: $e';
-      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners(); // Update UI with new state
     }
   }
 
   Future<void> updateTire(Tire tire) async {
     debugPrint('Updating tire: ${tire.id}');
     try {
-      final index = _tires.indexWhere((t) => t.id == tire.id);
-      if (index != -1) {
-        _tires[index] = tire;
-        await _storageService.saveTires(_tires);
-        _filteredTires = _tires;
-        notifyListeners();
-      } else {
-        throw Exception('Tire not found: ${tire.id}');
-      }
+      await _supabaseService.updateTire(tire);
+      await loadTires(); // Reload tires from Supabase
+      _filteredTires = _tires; // Reset filtered tires to show all tires including updates
+      notifyListeners(); // Notify listeners to update the UI
     } catch (e) {
       debugPrint('Error updating tire: $e');
       _error = 'Failed to update tire: $e';
@@ -220,10 +228,10 @@ class InventoryProvider with ChangeNotifier {
   Future<void> deleteTire(String id) async {
     debugPrint('Deleting tire: $id');
     try {
-      _tires.removeWhere((tire) => tire.id == id);
-      await _storageService.saveTires(_tires);
-      _filteredTires = _tires;
-      notifyListeners();
+      await _supabaseService.deleteTire(id);
+      await loadTires(); // Reload tires from Supabase
+      _filteredTires = _tires; // Reset filtered tires to show all remaining tires
+      notifyListeners(); // Notify listeners to update the UI
     } catch (e) {
       debugPrint('Error deleting tire: $e');
       _error = 'Failed to delete tire: $e';

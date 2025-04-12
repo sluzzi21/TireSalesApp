@@ -14,14 +14,18 @@ class EditTireDialog extends StatefulWidget {
 
 class _EditTireDialogState extends State<EditTireDialog> {
   final _formKey = GlobalKey<FormState>();
-  String? _brand;
+  late String _brand;
   String? _model;
-  String? _width;
-  String? _ratio;
-  String? _diameter;
+  late String _width;
+  late String _ratio;
+  late String _diameter;
   String? _category;
-  final _priceController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  double? _price;
+  String? _description;
+  late int _quantity;
+  String? _storage_location1;
+  String? _storage_location2;
+  String? _storage_location3;
 
   @override
   void initState() {
@@ -32,243 +36,213 @@ class _EditTireDialogState extends State<EditTireDialog> {
     _ratio = widget.tire.ratio;
     _diameter = widget.tire.diameter;
     _category = widget.tire.category;
-    _priceController.text = widget.tire.price?.toString() ?? '';
-    _descriptionController.text = widget.tire.description ?? '';
+    _price = widget.tire.price;
+    _description = widget.tire.description;
+    _quantity = widget.tire.quantity;
+    _storage_location1 = widget.tire.storage_location1;
+    _storage_location2 = widget.tire.storage_location2;
+    _storage_location3 = widget.tire.storage_location3;
   }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final updatedTire = Tire(
+          id: widget.tire.id,
+          brand: _brand,
+          model: _model,
+          width: _width,
+          ratio: _ratio,
+          diameter: _diameter,
+          category: _category,
+          price: _price,
+          description: _description,
+          quantity: _quantity,
+          storage_location1: _storage_location1,
+          storage_location2: _storage_location2,
+          storage_location3: _storage_location3,
+        );
+
+        await Provider.of<InventoryProvider>(context, listen: false)
+            .updateTire(updatedTire);
+
+        if (mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Tire updated successfully')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error updating tire: $e')),
+          );
+        }
+      }
+    }
+  }
+
+
 
   @override
-  void dispose() {
-    _priceController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final updatedTire = Tire(
-        id: widget.tire.id,
-        brand: _brand!,
-        model: _model,
-        width: _width!,
-        ratio: _ratio!,
-        diameter: _diameter!,
-        category: _category,
-        price: _priceController.text.isNotEmpty ? double.parse(_priceController.text) : null,
-        description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-      );
-
-      context.read<InventoryProvider>().updateTire(updatedTire);
-      Navigator.of(context).pop();
-    }
-  }
-
-  void _handleValueChange(String field, String? value) {
-    if (value == '_new_') {
-      // Don't do anything when '_new_' is selected, wait for actual value
-      return;
-    }
-
-    switch (field) {
-      case 'brand':
-        setState(() => _brand = value);
-        break;
-      case 'model':
-        setState(() => _model = value);
-        break;
-      case 'width':
-        setState(() => _width = value);
-        break;
-      case 'ratio':
-        setState(() => _ratio = value);
-        break;
-      case 'diameter':
-        setState(() => _diameter = value);
-        break;
-      case 'category':
-        setState(() => _category = value);
-        break;
-    }
-  }
-
-  Widget _buildDropdownField({
-    required String label,
-    required List<String> items,
-    required String? value,
-    required void Function(String?) onChanged,
-    required String? Function(String?) validator,
-  }) {
-    final List<String> dropdownItems = [...items];
-
-    if (value != null && !dropdownItems.contains(value) && value != '_new_') {
-      dropdownItems.add(value);
-      dropdownItems.sort();
-    }
-
-    return DropdownButtonFormField<String>(
-      value: value,
-      decoration: InputDecoration(labelText: label),
-      items: [
-        ...dropdownItems.map((item) => DropdownMenuItem(
-              value: item,
-              child: Text(item),
-            )),
-        const DropdownMenuItem(
-          value: '_new_',
-          child: Text('Enter new value...'),
-        ),
-      ],
-      onChanged: (newValue) {
-        if (newValue == '_new_') {
-          showDialog(
-            context: context,
-            builder: (context) {
-              final controller = TextEditingController();
-              return AlertDialog(
-                title: Text('Enter new $label'),
-                content: TextField(
-                  controller: controller,
-                  decoration: InputDecoration(labelText: label),
-                  onSubmitted: (value) {
-                    if (value.isNotEmpty) {
-                      onChanged(value);
-                      Navigator.of(context).pop();
-                    }
-                  },
+    return Dialog(
+      child: Container(
+        width: width * 0.7,
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Edit Tire',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                // Brand Field
+                TextFormField(
+                  initialValue: _brand,
+                  decoration: const InputDecoration(labelText: 'Brand *'),
+                  onChanged: (value) => setState(() => _brand = value),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Please enter a brand' : null,
                 ),
-                actions: [
+                const SizedBox(height: 16),
+              // Model Field
+              TextFormField(
+                initialValue: _model,
+                decoration: const InputDecoration(labelText: 'Model'),
+                onChanged: (value) => setState(() => _model = value),
+              ),
+              const SizedBox(height: 16),
+              // Width Field
+              TextFormField(
+                initialValue: _width,
+                decoration: const InputDecoration(labelText: 'Width *'),
+                onChanged: (value) => setState(() => _width = value),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter a width' : null,
+              ),
+              const SizedBox(height: 16),
+
+              // Ratio Field
+              TextFormField(
+                initialValue: _ratio,
+                decoration: const InputDecoration(labelText: 'Ratio *'),
+                onChanged: (value) => setState(() => _ratio = value),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter a ratio' : null,
+              ),
+              const SizedBox(height: 16),
+
+              // Diameter Field
+              TextFormField(
+                initialValue: _diameter,
+                decoration: const InputDecoration(labelText: 'Diameter *'),
+                onChanged: (value) => setState(() => _diameter = value),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter a diameter' : null,
+              ),
+              const SizedBox(height: 16),
+
+              // Category Field
+              TextFormField(
+                initialValue: _category,
+                decoration: const InputDecoration(labelText: 'Category'),
+                onChanged: (value) => setState(() => _category = value),
+              ),
+              const SizedBox(height: 16),
+              // Price Field
+              TextFormField(
+                initialValue: _price?.toString() ?? '',
+                decoration: const InputDecoration(
+                  labelText: 'Price',
+                  prefixText: 'USD ',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  setState(() {
+                    _price = double.tryParse(value);
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Description Field
+              TextFormField(
+                initialValue: _description ?? '',
+                decoration: const InputDecoration(labelText: 'Description'),
+                onChanged: (value) => setState(() => _description = value),
+              ),
+              const SizedBox(height: 16),
+
+              // Quantity Field
+              TextFormField(
+                initialValue: _quantity?.toString() ?? '',
+                decoration: const InputDecoration(labelText: 'Quantity *'),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  setState(() {
+                    _quantity = int.tryParse(value) ?? 0;
+                  });
+                },
+                validator: (value) =>
+                    value == null || value.isEmpty || int.tryParse(value) == null
+                        ? 'Please enter a valid quantity'
+                        : null,
+              ),
+              const SizedBox(height: 16),
+
+              // Storage Location Fields
+              TextFormField(
+                initialValue: _storage_location1 ?? '',
+                decoration: const InputDecoration(labelText: 'Storage Location 1'),
+                onChanged: (value) => setState(() => _storage_location1 = value),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                initialValue: _storage_location2 ?? '',
+                decoration: const InputDecoration(labelText: 'Storage Location 2'),
+                onChanged: (value) => setState(() => _storage_location2 = value),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                initialValue: _storage_location3 ?? '',
+                decoration: const InputDecoration(labelText: 'Storage Location 3'),
+                onChanged: (value) => setState(() => _storage_location3 = value),
+              ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text('Cancel'),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      if (controller.text.isNotEmpty) {
-                        onChanged(controller.text);
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: const Text('Add'),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _submitForm,
+                    child: const Text('Save'),
                   ),
                 ],
-              );
-            },
-          );
-        } else {
-          onChanged(newValue);
-        }
-      },
-      validator: validator,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<InventoryProvider>();
-
-    return AlertDialog(
-      title: const Text('Edit Tire'),
-      content: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDropdownField(
-                label: 'Brand',
-                items: provider.distinctBrands,
-                value: _brand,
-                onChanged: (value) => _handleValueChange('brand', value),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a brand';
-                  }
-                  return null;
-                },
-              ),
-              _buildDropdownField(
-                label: 'Model (Optional)',
-                items: provider.getDistinctModelsForBrand(_brand),
-                value: _model,
-                onChanged: (value) => _handleValueChange('model', value),
-                validator: (_) => null, 
-              ),
-              _buildDropdownField(
-                label: 'Width',
-                items: provider.distinctWidths,
-                value: _width,
-                onChanged: (value) => _handleValueChange('width', value),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a width';
-                  }
-                  return null;
-                },
-              ),
-              _buildDropdownField(
-                label: 'Ratio',
-                items: provider.distinctRatios,
-                value: _ratio,
-                onChanged: (value) => _handleValueChange('ratio', value),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a ratio';
-                  }
-                  return null;
-                },
-              ),
-              _buildDropdownField(
-                label: 'Diameter',
-                items: provider.distinctDiameters,
-                value: _diameter,
-                onChanged: (value) => _handleValueChange('diameter', value),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a diameter';
-                  }
-                  return null;
-                },
-              ),
-              _buildDropdownField(
-                label: 'Category (Optional)',
-                items: provider.distinctCategories,
-                value: _category,
-                onChanged: (value) => _handleValueChange('category', value),
-                validator: (_) => null, 
-              ),
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Price (Optional)'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return null; 
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description (Optional)'),
-                maxLines: 3,
-                validator: (_) => null, 
               ),
             ],
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _submitForm,
-          child: const Text('Save'),
-        ),
-      ],
     );
   }
 }

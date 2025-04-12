@@ -47,12 +47,13 @@ class SupabaseService {
     }
   }
 
-  /// Get all tires
+  /// Get all tires ordered by created_at in descending order
   Future<List<Tire>> getTires() async {
     try {
       final response = await _client
           .from('tires')
-          .select();
+          .select()
+          .order('created_at', ascending: false);
 
       return (response as List)
           .map((json) => Tire.fromJson(Map<String, dynamic>.from(json)))
