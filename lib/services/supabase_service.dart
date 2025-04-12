@@ -20,10 +20,7 @@ class SupabaseService {
 
   /// Initialize Supabase client
   Future<void> initialize() async {
-    if (_isInitialized) {
-      _client = Supabase.instance.client;
-      return;
-    }
+    if (_isInitialized) return;
 
     try {
       bool alreadyInitialized = false;
@@ -50,16 +47,22 @@ class SupabaseService {
   /// Get all tires ordered by created_at in descending order
   Future<List<Tire>> getTires() async {
     try {
+      // Ensure client is initialized
+      if (!_isInitialized) {
+        await initialize();
+      }
+
       final response = await _client
           .from('tires')
           .select()
           .order('created_at', ascending: false);
 
-      return (response as List)
+      final tires = (response as List)
           .map((json) => Tire.fromJson(Map<String, dynamic>.from(json)))
           .toList();
+      
+      return tires;
     } catch (e) {
-      print('Error fetching tires: $e');
       rethrow;
     }
   }
@@ -108,6 +111,12 @@ class SupabaseService {
   /// Update an existing tire
   Future<Tire> updateTire(Tire tire) async {
     try {
+      // Ensure client is initialized
+      if (!_isInitialized) {
+        await initialize();
+      }
+
+      // Perform the update
       final response = await _client
           .from('tires')
           .update(tire.toSupabaseJson())
@@ -115,9 +124,10 @@ class SupabaseService {
           .select()
           .single();
 
-      return Tire.fromJson(Map<String, dynamic>.from(response));
+      // Convert response to Tire object
+      final updatedTire = Tire.fromJson(Map<String, dynamic>.from(response));
+      return updatedTire;
     } catch (e) {
-      print('Error updating tire: $e');
       rethrow;
     }
   }

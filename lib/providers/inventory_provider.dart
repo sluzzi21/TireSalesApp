@@ -194,12 +194,14 @@ class InventoryProvider with ChangeNotifier {
     debugPrint('Adding new tire: ${tire.id}');
     try {
       _isLoading = true;
+      _error = null;
       notifyListeners(); // Show loading state
 
       await _supabaseService.addTire(tire);
+      await _supabaseService.initialize(); // Ensure Supabase is ready
       _tires = await _supabaseService.getTires(); // Get fresh data
       _filteredTires = List.from(_tires); // Create a new filtered list
-      _error = null;
+      _applyFilters(); // Reapply any active filters
 
       debugPrint('Successfully added tire and reloaded data');
     } catch (e) {
@@ -212,15 +214,35 @@ class InventoryProvider with ChangeNotifier {
   }
 
   Future<void> updateTire(Tire tire) async {
-    debugPrint('Updating tire: ${tire.id}');
     try {
-      await _supabaseService.updateTire(tire);
-      await loadTires(); // Reload tires from Supabase
-      _filteredTires = _tires; // Reset filtered tires to show all tires including updates
-      notifyListeners(); // Notify listeners to update the UI
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      // Update tire in Supabase
+      final updatedTire = await _supabaseService.updateTire(tire);
+
+      // Update local state immediately
+      final index = _tires.indexWhere((t) => t.id == updatedTire.id);
+      if (index != -1) {
+        _tires[index] = updatedTire;
+      }
+
+      // Refresh filtered list
+      _filteredTires = List.from(_tires);
+      _applyFilters();
+
+      // Get fresh data from Supabase
+      final freshTires = await _supabaseService.getTires();
+      
+      // Update lists with fresh data
+      _tires = freshTires;
+      _filteredTires = List.from(_tires);
+      _applyFilters();
     } catch (e) {
-      debugPrint('Error updating tire: $e');
       _error = 'Failed to update tire: $e';
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }

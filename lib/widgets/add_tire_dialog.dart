@@ -14,8 +14,8 @@ class AddTireDialog extends StatefulWidget {
 class _AddTireDialogState extends State<AddTireDialog> {
   final _formKey = GlobalKey<FormState>();
 
-  Widget wrapDropdown(Widget child) {
-    return Container(
+  Widget wrapFormField(Widget child) {
+    return SizedBox(
       height: 70,
       child: child,
     );
@@ -42,14 +42,17 @@ class _AddTireDialogState extends State<AddTireDialog> {
 
     // Helper function to style autocomplete options
     Widget wrapAutocompleteOptions(Widget optionsView) {
-      return Container(
-        width: dialogWidth,
-        constraints: BoxConstraints(
-          maxHeight: 200,
-        ),
-        child: Material(
-          elevation: 4,
-          child: optionsView,
+      return Align(
+        alignment: Alignment.topLeft,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: dialogWidth - 32, // Account for dialog padding
+            maxHeight: 200,
+          ),
+          child: Material(
+            elevation: 4,
+            child: optionsView,
+          ),
         ),
       );
     }
@@ -176,61 +179,157 @@ class _AddTireDialogState extends State<AddTireDialog> {
                     // Width, Ratio, Diameter Row
                     Row(
                       children: [
-                        // Width Dropdown
+                        // Width Autocomplete
                         Expanded(
-                          child: wrapDropdown(
-                            TextFormField(
-                              decoration: const InputDecoration(labelText: 'Width *'),
-                              onChanged: (value) {
+                          child: wrapFormField(
+                            Autocomplete<String>(
+                              optionsViewBuilder: (context, onSelected, options) => wrapAutocompleteOptions(
+                                ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: options.length,
+                                  itemBuilder: (context, index) {
+                                    final option = options.elementAt(index);
+                                    return ListTile(
+                                      title: Text(option),
+                                      onTap: () => onSelected(option),
+                                    );
+                                  },
+                                ),
+                              ),
+                              optionsBuilder: (TextEditingValue textEditingValue) {
+                                if (textEditingValue.text.isEmpty) {
+                                  return inventoryProvider.distinctWidths;
+                                }
+                                return inventoryProvider.distinctWidths.where((width) =>
+                                    width.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                              },
+                              initialValue: TextEditingValue(text: _width),
+                              onSelected: (String value) {
                                 setState(() {
                                   _width = value;
                                 });
                               },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Required';
-                                }
-                                return null;
+                              fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                                return TextFormField(
+                                  controller: textEditingController,
+                                  focusNode: focusNode,
+                                  decoration: const InputDecoration(labelText: 'Width *'),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _width = value;
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Required';
+                                    }
+                                    return null;
+                                  },
+                                );
                               },
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Ratio Dropdown
+                        // Ratio Autocomplete
                         Expanded(
-                          child: wrapDropdown(
-                            TextFormField(
-                              decoration: const InputDecoration(labelText: 'Ratio *'),
-                              onChanged: (value) {
+                          child: wrapFormField(
+                            Autocomplete<String>(
+                              optionsViewBuilder: (context, onSelected, options) => wrapAutocompleteOptions(
+                                ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: options.length,
+                                  itemBuilder: (context, index) {
+                                    final option = options.elementAt(index);
+                                    return ListTile(
+                                      title: Text(option),
+                                      onTap: () => onSelected(option),
+                                    );
+                                  },
+                                ),
+                              ),
+                              optionsBuilder: (TextEditingValue textEditingValue) {
+                                if (textEditingValue.text.isEmpty) {
+                                  return inventoryProvider.distinctRatios;
+                                }
+                                return inventoryProvider.distinctRatios.where((ratio) =>
+                                    ratio.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                              },
+                              initialValue: TextEditingValue(text: _ratio),
+                              onSelected: (String value) {
                                 setState(() {
                                   _ratio = value;
                                 });
                               },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Required';
-                                }
-                                return null;
+                              fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                                return TextFormField(
+                                  controller: textEditingController,
+                                  focusNode: focusNode,
+                                  decoration: const InputDecoration(labelText: 'Ratio *'),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _ratio = value;
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Required';
+                                    }
+                                    return null;
+                                  },
+                                );
                               },
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Diameter Dropdown
+                        // Diameter Autocomplete
                         Expanded(
-                          child: wrapDropdown(
-                            TextFormField(
-                              decoration: const InputDecoration(labelText: 'Diameter *'),
-                              onChanged: (value) {
+                          child: wrapFormField(
+                            Autocomplete<String>(
+                              optionsViewBuilder: (context, onSelected, options) => wrapAutocompleteOptions(
+                                ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: options.length,
+                                  itemBuilder: (context, index) {
+                                    final option = options.elementAt(index);
+                                    return ListTile(
+                                      title: Text(option),
+                                      onTap: () => onSelected(option),
+                                    );
+                                  },
+                                ),
+                              ),
+                              optionsBuilder: (TextEditingValue textEditingValue) {
+                                if (textEditingValue.text.isEmpty) {
+                                  return inventoryProvider.distinctDiameters;
+                                }
+                                return inventoryProvider.distinctDiameters.where((diameter) =>
+                                    diameter.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                              },
+                              initialValue: TextEditingValue(text: _diameter),
+                              onSelected: (String value) {
                                 setState(() {
                                   _diameter = value;
                                 });
                               },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Required';
-                                }
-                                return null;
+                              fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                                return TextFormField(
+                                  controller: textEditingController,
+                                  focusNode: focusNode,
+                                  decoration: const InputDecoration(labelText: 'Diameter *'),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _diameter = value;
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Required';
+                                    }
+                                    return null;
+                                  },
+                                );
                               },
                             ),
                           ),
@@ -239,13 +338,45 @@ class _AddTireDialogState extends State<AddTireDialog> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Category Input
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: 'Category'),
-                      onChanged: (value) {
+                    // Category Autocomplete
+                    Autocomplete<String>(
+                      optionsViewBuilder: (context, onSelected, options) => wrapAutocompleteOptions(
+                        ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: options.length,
+                          itemBuilder: (context, index) {
+                            final option = options.elementAt(index);
+                            return ListTile(
+                              title: Text(option),
+                              onTap: () => onSelected(option),
+                            );
+                          },
+                        ),
+                      ),
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return inventoryProvider.distinctCategories;
+                        }
+                        return inventoryProvider.distinctCategories.where((category) =>
+                            category.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                      },
+                      initialValue: TextEditingValue(text: _category ?? ''),
+                      onSelected: (String value) {
                         setState(() {
                           _category = value;
                         });
+                      },
+                      fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                        return TextFormField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(labelText: 'Category'),
+                          onChanged: (value) {
+                            setState(() {
+                              _category = value;
+                            });
+                          },
+                        );
                       },
                     ),
                     const SizedBox(height: 16),
@@ -265,13 +396,45 @@ class _AddTireDialogState extends State<AddTireDialog> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Description Field
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: 'Description'),
-                      onChanged: (value) {
+                    // Description Autocomplete
+                    Autocomplete<String>(
+                      optionsViewBuilder: (context, onSelected, options) => wrapAutocompleteOptions(
+                        ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: options.length,
+                          itemBuilder: (context, index) {
+                            final option = options.elementAt(index);
+                            return ListTile(
+                              title: Text(option),
+                              onTap: () => onSelected(option),
+                            );
+                          },
+                        ),
+                      ),
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return inventoryProvider.distinctDescriptions;
+                        }
+                        return inventoryProvider.distinctDescriptions.where((description) =>
+                            description.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                      },
+                      initialValue: TextEditingValue(text: _description ?? ''),
+                      onSelected: (String value) {
                         setState(() {
                           _description = value;
                         });
+                      },
+                      fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                        return TextFormField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(labelText: 'Description'),
+                          onChanged: (value) {
+                            setState(() {
+                              _description = value;
+                            });
+                          },
+                        );
                       },
                     ),
                     const SizedBox(height: 16),

@@ -47,6 +47,7 @@ class _EditTireDialogState extends State<EditTireDialog> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
+        final inventoryProvider = Provider.of<InventoryProvider>(context, listen: false);
         final updatedTire = Tire(
           id: widget.tire.id,
           brand: _brand,
@@ -63,8 +64,7 @@ class _EditTireDialogState extends State<EditTireDialog> {
           storage_location3: _storage_location3,
         );
 
-        await Provider.of<InventoryProvider>(context, listen: false)
-            .updateTire(updatedTire);
+        await inventoryProvider.updateTire(updatedTire);
 
         if (mounted) {
           Navigator.of(context).pop();
